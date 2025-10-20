@@ -5,6 +5,7 @@ const io = require('socket.io')(http);
 const axios = require('axios');
 const fs = require('fs');
 const path = require('path');
+const cron = require('node-cron');
 
 // Serve the HTML file
 app.get('/', (req, res) => {
@@ -12,7 +13,7 @@ app.get('/', (req, res) => {
 });
 
 // Test mode toggle (set to false for production)
-const TEST_MODE = false; // Change to false for production
+const TEST_MODE = false; // Keep false for production
 
 // Force start endpoint for testing (remove for production)
 if (TEST_MODE) {
@@ -106,36 +107,29 @@ function saveTodayPlayers() {
     }
 }
 
-// Check if it's game time (8pm EST)
-function isGameTime() {
-    const now = new Date();
-    const est = new Date(now.toLocaleString("en-US", {timeZone: "America/New_York"}));
-    return est.getHours() === 20 && est.getMinutes() === 0;
-}
-
-// Schedule the next game check
-function scheduleNextGameCheck() {
-    const now = new Date();
-    const est = new Date(now.toLocaleString("en-US", {timeZone: "America/New_York"}));
-    const nextGame = new Date(est);
+// Setup robust daily scheduling with node-cron
+function setupDailySchedule() {
+    // Schedule game at 8:00 PM EST every day
+    cron.schedule('0 0 20 * * *', async () => {
+        console.log('Scheduled game time! Starting daily quiz...');
+        await autoStartGame();
+    }, {
+        timezone: "America/New_York"
+    });
     
-    // Set to 8pm EST
-    nextGame.setHours(20, 0, 0, 0);
+    // Schedule daily reset at midnight EST
+    cron.schedule('0 0 0 * * *', async () => {
+        console.log('Midnight reset - clearing player data and fetching new questions');
+        const today = new Date().toDateString();
+        todayPlayers.date = today;
+        todayPlayers.players.clear();
+        saveTodayPlayers();
+        await fetchDailyQuestions();
+    }, {
+        timezone: "America/New_York"
+    });
     
-    // If it's past 8pm today, set to tomorrow
-    if (est >= nextGame) {
-        nextGame.setDate(nextGame.getDate() + 1);
-    }
-    
-    const msUntilGame = nextGame.getTime() - est.getTime();
-    
-    console.log(`Next game scheduled in ${Math.round(msUntilGame / 1000 / 60)} minutes at 8pm EST`);
-    
-    setTimeout(() => {
-        console.log('Game time! Starting daily quiz...');
-        autoStartGame();
-        scheduleNextGameCheck(); // Schedule next day's game
-    }, msUntilGame);
+    console.log('Daily schedules set up with node-cron - game at 8pm EST, reset at midnight EST');
 }
 
 // Auto-start the game at 8pm EST
@@ -288,31 +282,7 @@ async function initializeDailyQuestions() {
     await fetchDailyQuestions();
 }
 
-// Schedule new questions at midnight
-function scheduleDaily() {
-    const now = new Date();
-    const tomorrow = new Date(now);
-    tomorrow.setDate(tomorrow.getDate() + 1);
-    tomorrow.setHours(0, 0, 0, 0);
-    
-    const msUntilMidnight = tomorrow - now;
-    
-    setTimeout(() => {
-        // Reset today's players at midnight
-        const today = new Date().toDateString();
-        todayPlayers.date = today;
-        todayPlayers.players.clear();
-        saveTodayPlayers();
-        console.log('Reset player data for new day at midnight');
-        
-        fetchDailyQuestions();
-        scheduleDaily(); // Schedule next day
-    }, msUntilMidnight);
-    
-    console.log(`Next question refresh in ${Math.round(msUntilMidnight / 1000 / 60)} minutes at midnight`);
-}
-
-// Decode HTML entities
+// Decode HTML entities (not needed for Trivia API but keeping for compatibility)
 function decodeHTMLEntities(text) {
     const entities = {
         '&quot;': '"',
@@ -777,13 +747,6 @@ http.listen(PORT, async () => {
     await initializeDailyQuestions();
     loadTodayPlayers();
     
-    // Schedule daily refresh at midnight
-    scheduleDaily();
-    
-    // Schedule next game at 8pm EST
-    if (!TEST_MODE) {
-        scheduleNextGameCheck();
-    } else {
-        console.log('Auto-start at 8pm EST disabled in test mode');
-    }
+    // Setup robust daily scheduling with node-cron
+    setupDailySchedule();
 });
