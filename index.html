@@ -1,0 +1,1336 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Quiz Royale</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: #6366F1;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        
+        .container {
+            width: 100%;
+            max-width: 400px;
+        }
+        
+        .game-box {
+            background: #FFFFFF;
+            border-radius: 16px;
+            padding: 32px 28px;
+            position: relative;
+        }
+        
+        /* Header */
+        .header {
+            text-align: center;
+            margin-bottom: 32px;
+        }
+        
+        .logo {
+            font-size: 1.75rem;
+            font-weight: 700;
+            margin-bottom: 8px;
+            letter-spacing: -0.5px;
+            color: #1E293B;
+        }
+        
+        .game-info {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 16px;
+            font-size: 0.875rem;
+        }
+        
+        .quiz-number {
+            color: #6366F1;
+            font-weight: 600;
+        }
+        
+        .info-separator {
+            width: 4px;
+            height: 4px;
+            background: #CBD5E1;
+            border-radius: 50%;
+        }
+        
+        .player-count {
+            color: #64748B;
+        }
+        
+        .player-count strong {
+            font-weight: 600;
+            color: #1E293B;
+        }
+        
+        .players-remaining {
+            color: #6366F1;
+            font-weight: 600;
+        }
+        
+        /* Countdown Display */
+        .countdown-display {
+            text-align: center;
+            padding: 24px 0;
+        }
+        
+        .countdown-label {
+            font-size: 0.875rem;
+            color: #64748B;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 12px;
+            font-weight: 600;
+        }
+        
+        .countdown-timer {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #1E293B;
+            font-variant-numeric: tabular-nums;
+            margin-bottom: 8px;
+        }
+        
+        .countdown-subtitle {
+            font-size: 0.75rem;
+            color: #94A3B8;
+            margin-bottom: 20px;
+        }
+        
+        .waiting-count {
+            font-size: 0.875rem;
+            color: #6366F1;
+            font-weight: 600;
+            margin-top: 16px;
+        }
+        
+        /* Today's Result Display */
+        .today-result {
+            text-align: center;
+            padding: 20px 0;
+        }
+        
+        .result-label {
+            font-size: 0.875rem;
+            color: #64748B;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 16px;
+            font-weight: 600;
+        }
+        
+        .result-position {
+            font-size: 3rem;
+            font-weight: 700;
+            color: #1E293B;
+            margin-bottom: 8px;
+        }
+        
+        .result-details {
+            font-size: 0.875rem;
+            color: #64748B;
+            margin-bottom: 24px;
+        }
+        
+        .tomorrow-message {
+            font-size: 0.875rem;
+            color: #94A3B8;
+            margin-top: 20px;
+        }
+        
+        /* Status Badge */
+        .status-badge {
+            position: absolute;
+            top: 16px;
+            right: 16px;
+            background: #64748B;
+            color: white;
+            padding: 6px 12px;
+            border-radius: 8px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            display: none;
+        }
+        
+        .status-badge.spectating {
+            display: block;
+        }
+        
+        .status-badge.eliminated {
+            background: #EF4444;
+            display: block;
+        }
+        
+        /* Test Mode Badge */
+        .test-mode-badge {
+            position: absolute;
+            top: 16px;
+            left: 16px;
+            background: #F59E0B;
+            color: white;
+            padding: 6px 12px;
+            border-radius: 8px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            display: none;
+        }
+        
+        .test-mode-badge.active {
+            display: block;
+        }
+        
+        /* Question Screen */
+        .question-meta {
+            display: flex;
+            align-items: center;
+            margin-bottom: 32px;
+            padding-bottom: 24px;
+            border-bottom: 1px solid #E2E8F0;
+            position: relative;
+        }
+        
+        .question-counter {
+            font-size: 0.875rem;
+            color: #64748B;
+            font-weight: 500;
+        }
+        
+        .question-difficulty {
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 0.6875rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+        
+        .difficulty-easy {
+            background: #ECFDF5;
+            color: #047857;
+        }
+        
+        .difficulty-medium {
+            background: #FEF3C7;
+            color: #B45309;
+        }
+        
+        .difficulty-hard {
+            background: #FEE2E2;
+            color: #B91C1C;
+        }
+        
+        .timer-wrapper {
+            margin-left: auto;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            background: #F8FAFC;
+            padding: 6px 12px;
+            border-radius: 8px;
+        }
+        
+        .timer-icon {
+            width: 16px;
+            height: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .timer-icon svg {
+            width: 100%;
+            height: 100%;
+            fill: #94A3B8;
+        }
+        
+        .timer {
+            font-size: 1.125rem;
+            font-weight: 600;
+            font-variant-numeric: tabular-nums;
+            color: #334155;
+        }
+        
+        .question-text {
+            font-size: 1.125rem;
+            line-height: 1.6;
+            margin: 24px 0 32px 0;
+            min-height: 60px;
+        }
+        
+        .question-category {
+            font-size: 0.75rem;
+            color: #94A3B8;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 12px;
+            font-weight: 600;
+        }
+        
+        .answers {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        
+        .answer-btn {
+            background: #FAFAFA;
+            border: 2px solid #E0E0E0;
+            padding: 14px 16px;
+            border-radius: 8px;
+            font-size: 0.9375rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.15s ease;
+            text-align: left;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-family: 'Poppins', sans-serif;
+        }
+        
+        .answer-btn .letter {
+            width: 24px;
+            height: 24px;
+            background: #FFF;
+            border: 1px solid #E0E0E0;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 0.875rem;
+            color: #666;
+        }
+        
+        .answer-btn:hover:not(:disabled):not(.correct):not(.wrong):not(.selected) {
+            border-color: #6366F1;
+            background: #FFF;
+        }
+        
+        .answer-btn:hover:not(:disabled):not(.correct):not(.wrong):not(.selected) .letter {
+            border-color: #6366F1;
+            color: #6366F1;
+        }
+        
+        .answer-btn:disabled {
+            cursor: not-allowed;
+            opacity: 0.5;
+        }
+        
+        .answer-btn.selected {
+            background: #6366F1;
+            color: white;
+            border-color: #6366F1;
+            cursor: default;
+        }
+        
+        .answer-btn.selected .letter {
+            background: transparent;
+            color: white;
+            border-color: rgba(255,255,255,0.3);
+        }
+        
+        .answer-btn.correct {
+            background: #059669;
+            color: white;
+            border-color: #059669;
+            cursor: default;
+        }
+        
+        .answer-btn.correct .letter {
+            background: transparent;
+            color: white;
+            border-color: rgba(255,255,255,0.3);
+        }
+        
+        .answer-btn.wrong {
+            background: #DC2626;
+            color: white;
+            border-color: #DC2626;
+            cursor: default;
+        }
+        
+        .answer-btn.wrong .letter {
+            background: transparent;
+            color: white;
+            border-color: rgba(255,255,255,0.3);
+        }
+        
+        /* Spectator mode answers */
+        .answer-static {
+            background: #FAFAFA;
+            border: 2px solid #E0E0E0;
+            padding: 14px 16px;
+            border-radius: 8px;
+            font-size: 0.9375rem;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            opacity: 0.4;
+            cursor: not-allowed;
+        }
+        
+        /* Results Screen */
+        .results {
+            text-align: center;
+            padding: 24px 0;
+            position: relative;
+        }
+        
+        .results-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        
+        .results-title.correct {
+            color: #059669;
+        }
+        
+        .results-title.eliminated {
+            color: #DC2626;
+        }
+        
+        .remaining-count-section {
+            margin: 32px 0;
+            position: relative;
+            display: inline-block;
+        }
+        
+        .remaining-number {
+            font-size: 4.5rem;
+            font-weight: 700;
+            line-height: 1;
+            margin-bottom: 12px;
+            font-variant-numeric: tabular-nums;
+            color: #1E293B;
+        }
+        
+        .remaining-label {
+            font-size: 1rem;
+            color: #64748B;
+            font-weight: 500;
+        }
+        
+        .elimination-bubble {
+            position: absolute;
+            top: -5px;
+            right: -50px;
+            background: #FEE2E2;
+            color: #DC2626;
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 0.875rem;
+            font-weight: 600;
+            animation: bubbleFadeIn 0.4s ease-out forwards;
+        }
+        
+        @keyframes bubbleFadeIn {
+            from {
+                opacity: 0;
+                transform: scale(0.8) translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1) translateY(0);
+            }
+        }
+        
+        .countdown-text {
+            color: #94A3B8;
+            font-size: 0.875rem;
+            margin-top: 40px;
+        }
+        
+        /* Final Position Screen */
+        .final-screen {
+            text-align: center;
+            padding: 24px 0;
+        }
+        
+        .final-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 32px;
+        }
+        
+        .position-number {
+            font-size: 4rem;
+            font-weight: 700;
+            line-height: 1;
+            margin: 24px 0;
+        }
+        
+        .position-context {
+            color: #666;
+            font-size: 0.875rem;
+            margin-bottom: 8px;
+        }
+        
+        .percentile {
+            font-size: 1.125rem;
+            font-weight: 600;
+            margin: 16px 0;
+        }
+        
+        .action-buttons {
+            display: flex;
+            gap: 12px;
+            margin-top: 32px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        
+        .action-btn {
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 0.875rem;
+            font-weight: 600;
+            cursor: pointer;
+            border: 2px solid #E0E0E0;
+            background: white;
+            transition: all 0.15s ease;
+            font-family: 'Poppins', sans-serif;
+        }
+        
+        .action-btn:hover {
+            border-color: #6366F1;
+            color: #6366F1;
+        }
+        
+        .action-btn.test-start {
+            background: #F59E0B;
+            color: white;
+            border-color: #F59E0B;
+        }
+        
+        .action-btn.test-start:hover {
+            background: #D97706;
+            border-color: #D97706;
+        }
+        
+        /* Floating Action Bar */
+        .floating-bar {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: white;
+            border-radius: 12px;
+            border: 1px solid #E0E0E0;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            display: none;
+            padding: 8px;
+            gap: 8px;
+            z-index: 1000;
+            max-width: 320px;
+            width: auto;
+        }
+        
+        .floating-bar.active {
+            display: flex;
+        }
+        
+        .floating-btn {
+            background: white;
+            border: 1px solid #E0E0E0;
+            color: #333;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-size: 0.875rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.15s ease;
+            font-family: 'Poppins', sans-serif;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        
+        .floating-btn:hover {
+            background: #6366F1;
+            color: white;
+            border-color: #6366F1;
+        }
+        
+        .floating-btn i {
+            font-size: 0.875rem;
+        }
+        
+        /* Timer Bar */
+        .timer-bar-container {
+            margin-top: 32px;
+            height: 2px;
+            background: #E0E0E0;
+            overflow: hidden;
+        }
+        
+        .timer-bar {
+            height: 100%;
+            background: #6366F1;
+            transition: width 15s linear;
+        }
+        
+        /* Countdown */
+        .countdown {
+            font-size: 5rem;
+            font-weight: 700;
+            text-align: center;
+            color: #6366F1;
+        }
+        
+        /* Waiting message */
+        .waiting-text {
+            text-align: center;
+            color: #666;
+            font-size: 0.875rem;
+            margin-top: 16px;
+        }
+        
+        .loading-dots {
+            display: inline-flex;
+            gap: 3px;
+            margin-left: 6px;
+        }
+        
+        .loading-dots span {
+            width: 4px;
+            height: 4px;
+            border-radius: 50%;
+            background: #999;
+            animation: pulse 1.4s infinite ease-in-out;
+        }
+        
+        .loading-dots span:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+        
+        .loading-dots span:nth-child(3) {
+            animation-delay: 0.4s;
+        }
+        
+        @keyframes pulse {
+            0%, 80%, 100% {
+                opacity: 0.3;
+            }
+            40% {
+                opacity: 1;
+            }
+        }
+        
+        .stat-block {
+            margin: 24px 0;
+        }
+        
+        .stat-number {
+            font-size: 3rem;
+            font-weight: 700;
+            line-height: 1;
+            margin-bottom: 8px;
+        }
+        
+        .stat-label {
+            font-size: 0.875rem;
+            color: #666;
+        }
+        
+        /* Mobile adjustments */
+        @media (max-width: 400px) {
+            .game-box {
+                padding: 24px 20px;
+            }
+            
+            .logo {
+                font-size: 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="game-box">
+            <div class="test-mode-badge" id="testModeBadge">TEST MODE</div>
+            <div class="status-badge" id="statusBadge"></div>
+            
+            <div class="header">
+                <div class="logo">Quiz Royale</div>
+                <div class="game-info">
+                    <span class="quiz-number" id="lobbyQuizNumber">Quiz #<span id="lobbyGameNumber">-</span></span>
+                    <span class="info-separator" id="infoSeparator" style="display: none;"></span>
+                    <span class="player-count" id="playerCountDisplay" style="display: none;">
+                        <strong id="playerCount">0</strong> <span id="playerCountLabel">remaining</span>
+                    </span>
+                </div>
+            </div>
+            
+            <div id="gameArea">
+                <!-- Content will be inserted here -->
+            </div>
+        </div>
+    </div>
+    
+    <!-- Floating action bar for spectators -->
+    <div class="floating-bar" id="floatingBar">
+        <button class="floating-btn" onclick="shareResult()">
+            <i class="fas fa-share"></i> Share
+        </button>
+        <button class="floating-btn" onclick="returnToLobby()">
+            <i class="fas fa-home"></i> Leave
+        </button>
+    </div>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+        const socket = io();
+        let gameState = {
+            status: 'waiting',
+            isSpectating: false,
+            position: null,
+            totalPlayers: 0,
+            questionsCorrect: 0,
+            gameNumber: null,
+            currentAnswer: null,
+            previousRemaining: null,
+            hasPlayedToday: false,
+            todayResult: null,
+            waitingPlayers: 0,
+            testMode: false
+        };
+        
+        let countdownInterval = null;
+        
+        // Get or create persistent player ID
+        function getPlayerId() {
+            let playerId = localStorage.getItem('quizRoyalePlayerId');
+            if (!playerId) {
+                playerId = Math.random().toString(36).substring(2) + Date.now().toString(36);
+                localStorage.setItem('quizRoyalePlayerId', playerId);
+            }
+            return playerId;
+        }
+        
+        // Calculate time until 8pm EST
+        function getTimeUntilGame() {
+            const now = new Date();
+            const est = new Date(now.toLocaleString("en-US", {timeZone: "America/New_York"}));
+            const nextGame = new Date(est);
+            
+            // Set to 8pm EST
+            nextGame.setHours(20, 0, 0, 0);
+            
+            // If it's past 8pm today, set to tomorrow
+            if (est >= nextGame) {
+                nextGame.setDate(nextGame.getDate() + 1);
+            }
+            
+            const diff = nextGame.getTime() - est.getTime();
+            const hours = Math.floor(diff / (1000 * 60 * 60));
+            const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+            const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+            
+            return { hours, minutes, seconds, total: diff };
+        }
+        
+        // Update countdown display
+        function updateCountdown() {
+            const time = getTimeUntilGame();
+            const countdownEl = document.getElementById('countdownTimer');
+            if (countdownEl) {
+                countdownEl.textContent = 
+                    `${String(time.hours).padStart(2, '0')}:${String(time.minutes).padStart(2, '0')}:${String(time.seconds).padStart(2, '0')}`;
+            }
+            
+            // Check if it's time to start (less than 1 second remaining)
+            if (time.total < 1000 && !gameState.testMode) {
+                clearInterval(countdownInterval);
+                // Server will auto-start the game
+            }
+        }
+        
+        // Show appropriate lobby screen based on player state
+        function showLobbyScreen() {
+            let html = '';
+            
+            if (gameState.hasPlayedToday && gameState.todayResult) {
+                // Player has already played today - show results
+                // Fix percentile calculation: if you're last place, you beat 0% of players
+                const playersBeaten = gameState.todayResult.totalPlayers - gameState.todayResult.position;
+                const percentile = gameState.todayResult.totalPlayers > 1 ? 
+                    Math.round((playersBeaten / (gameState.todayResult.totalPlayers - 1)) * 100) : 
+                    100; // If only 1 player, they're the winner
+                
+                html = `
+                    <div class="today-result">
+                        <div class="result-label">Today's Result</div>
+                        <div class="result-position">#${gameState.todayResult.position}</div>
+                        <div class="result-details">
+                            out of ${gameState.todayResult.totalPlayers} players<br>
+                            Better than ${percentile}% • ${gameState.todayResult.questionsCorrect} questions correct
+                        </div>
+                        <button class="action-btn" onclick="shareResult()">
+                            <i class="fas fa-share-alt"></i> Share Result
+                        </button>
+                        <div class="tomorrow-message">See you tomorrow at 8pm EST!</div>
+                    </div>
+                `;
+            } else {
+                // Player hasn't played today - show countdown
+                html = `
+                    <div class="countdown-display">
+                        <div class="countdown-label">Next Game In</div>
+                        <div class="countdown-timer" id="countdownTimer">--:--:--</div>
+                        <div class="countdown-subtitle">Daily quiz starts at 8pm EST</div>
+                        <div class="waiting-count">${gameState.waitingPlayers} players waiting</div>
+                    </div>
+                `;
+                
+                // Add test mode button if enabled
+                if (gameState.testMode) {
+                    html += `
+                        <div class="action-buttons" style="margin-top: 20px;">
+                            <button class="action-btn test-start" onclick="startTestGame()">
+                                <i class="fas fa-play"></i> Start Test Game
+                            </button>
+                        </div>
+                    `;
+                }
+            }
+            
+            document.getElementById('gameArea').innerHTML = html;
+            
+            // Start countdown if showing waiting screen
+            if (!gameState.hasPlayedToday) {
+                updateCountdown();
+                if (countdownInterval) clearInterval(countdownInterval);
+                countdownInterval = setInterval(updateCountdown, 1000);
+            }
+        }
+        
+        // Helper function to ensure floating bar is visible for spectators
+        function updateFloatingBar() {
+            const floatingBar = document.getElementById('floatingBar');
+            if (gameState.isSpectating) {
+                floatingBar.classList.add('active');
+            } else {
+                floatingBar.classList.remove('active');
+            }
+        }
+        
+        // Handle initial connection
+        socket.on('connect', () => {
+            console.log('Connected to server');
+            // Send persistent ID for tracking
+            socket.emit('identify', getPlayerId());
+            socket.emit('getGameState');
+        });
+        
+        // Handle game state from server
+        socket.on('gameStateUpdate', (data) => {
+            console.log('Game state update:', data);
+            gameState.hasPlayedToday = data.hasPlayedToday;
+            gameState.todayResult = data.todayResult;
+            gameState.waitingPlayers = data.waitingPlayers;
+            gameState.status = data.status;
+            gameState.testMode = data.testMode || false;
+            
+            // Show test mode badge if enabled
+            if (gameState.testMode) {
+                document.getElementById('testModeBadge').classList.add('active');
+            }
+            
+            // Hide player count in header if in lobby
+            if (gameState.status === 'waiting') {
+                const countDisplay = document.getElementById('playerCountDisplay');
+                const separator = document.getElementById('infoSeparator');
+                if (countDisplay) countDisplay.style.display = 'none';
+                if (separator) separator.style.display = 'none';
+                showLobbyScreen();
+            }
+        });
+        
+        socket.on('currentGameNumber', (number) => {
+            console.log('Received game number:', number);
+            gameState.gameNumber = number;
+            document.getElementById('lobbyGameNumber').textContent = number;
+        });
+        
+        socket.on('playerCount', (count) => {
+            document.getElementById('playerCount').textContent = count;
+            // Only show player count in header during game, not in lobby
+            const countDisplay = document.getElementById('playerCountDisplay');
+            const separator = document.getElementById('infoSeparator');
+            const label = document.getElementById('playerCountLabel');
+            
+            if (gameState.status === 'waiting') {
+                // Hide in lobby
+                if (countDisplay) countDisplay.style.display = 'none';
+                if (separator) separator.style.display = 'none';
+            } else {
+                // Show during game
+                if (countDisplay) countDisplay.style.display = 'inline';
+                if (separator) separator.style.display = 'inline-block';
+                if (label) label.textContent = 'remaining';
+            }
+        });
+        
+        socket.on('playersRemaining', (count) => {
+            document.getElementById('playerCount').textContent = count;
+            const countDisplay = document.getElementById('playerCountDisplay');
+            const separator = document.getElementById('infoSeparator');
+            const label = document.getElementById('playerCountLabel');
+            
+            // Show during game
+            if (countDisplay) countDisplay.style.display = 'inline';
+            if (separator) separator.style.display = 'inline-block';
+            if (label) label.textContent = 'remaining';
+        });
+        
+        socket.on('waitingCount', (count) => {
+            gameState.waitingPlayers = count;
+            const waitingEl = document.querySelector('.waiting-count');
+            if (waitingEl) {
+                waitingEl.textContent = `${count} players waiting`;
+            }
+        });
+        
+        // Auto-start game at scheduled time
+        socket.on('gameStarting', () => {
+            console.log('Game is starting!');
+            clearInterval(countdownInterval);
+            gameState.hasPlayedToday = true; // Mark as played when game starts
+            gameState.status = 'starting';
+            
+            // Show player count in header for game
+            const countDisplay = document.getElementById('playerCountDisplay');
+            const separator = document.getElementById('infoSeparator');
+            const label = document.getElementById('playerCountLabel');
+            if (countDisplay) countDisplay.style.display = 'inline';
+            if (separator) separator.style.display = 'inline-block';
+            if (label) label.textContent = 'remaining';
+        });
+        
+        // Countdown
+        socket.on('countdown', (count) => {
+            gameState.previousRemaining = null;
+            gameState.status = 'starting';
+            
+            // Show player count in header when countdown starts
+            const countDisplay = document.getElementById('playerCountDisplay');
+            const separator = document.getElementById('infoSeparator');
+            if (countDisplay) countDisplay.style.display = 'inline';
+            if (separator) separator.style.display = 'inline-block';
+            
+            document.getElementById('gameArea').innerHTML = 
+                `<div class="countdown">${count}</div>`;
+        });
+        
+        // Show question
+        socket.on('question', (data) => {
+            gameState.status = 'playing';
+            updateFloatingBar();
+            
+            // Ensure player count is showing in header during game
+            const countDisplay = document.getElementById('playerCountDisplay');
+            const separator = document.getElementById('infoSeparator');
+            if (countDisplay) countDisplay.style.display = 'inline';
+            if (separator) separator.style.display = 'inline-block';
+            
+            let difficultyClass = 'difficulty-easy';
+            if (data.difficulty === 'MEDIUM') difficultyClass = 'difficulty-medium';
+            if (data.difficulty === 'HARD') difficultyClass = 'difficulty-hard';
+            
+            let html = `
+                <div class="question-meta">
+                    <span class="question-counter">Question ${data.number}/${data.total}</span>
+                    <span class="question-difficulty ${difficultyClass}">${data.difficulty}</span>
+                    <div class="timer-wrapper">
+                        <span class="timer-icon">
+                            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="2"/>
+                                <path d="M12 7V12L15 15" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                            </svg>
+                        </span>
+                        <span class="timer">${data.timeLimit}</span>
+                    </div>
+                </div>
+            `;
+            
+            if (data.category) {
+                html += `<div class="question-category">${data.category}</div>`;
+            }
+            
+            html += `
+                <div class="question-text">${data.question}</div>
+                <div class="answers">
+            `;
+            
+            if (gameState.isSpectating) {
+                data.answers.forEach((answer, index) => {
+                    const letter = String.fromCharCode(65 + index);
+                    html += `
+                        <div class="answer-static">
+                            <span class="letter">${letter}</span>
+                            <span>${answer}</span>
+                        </div>
+                    `;
+                });
+            } else {
+                data.answers.forEach((answer, index) => {
+                    const letter = String.fromCharCode(65 + index);
+                    html += `
+                        <button class="answer-btn" onclick="submitAnswer(${index})">
+                            <span class="letter">${letter}</span>
+                            <span>${answer}</span>
+                        </button>
+                    `;
+                });
+            }
+            
+            html += `
+                </div>
+                <div class="timer-bar-container">
+                    <div class="timer-bar" id="timerBar" style="width: 100%;"></div>
+                </div>
+            `;
+            
+            document.getElementById('gameArea').innerHTML = html;
+            gameState.currentAnswer = null;
+            
+            setTimeout(() => {
+                const timerBar = document.getElementById('timerBar');
+                if (timerBar) {
+                    timerBar.style.width = '0%';
+                }
+            }, 50);
+        });
+        
+        // Timer update
+        socket.on('timer', (timeLeft) => {
+            const timerElement = document.querySelector('.timer');
+            if (timerElement) {
+                timerElement.textContent = timeLeft;
+                const timerWrapper = document.querySelector('.timer-wrapper');
+                if (timerWrapper) {
+                    if (timeLeft <= 3) {
+                        timerWrapper.style.background = '#FEE2E2';
+                        timerElement.style.color = '#B91C1C';
+                    }
+                }
+            }
+        });
+        
+        // Submit answer
+        function submitAnswer(index) {
+            if (gameState.currentAnswer !== null) return;
+            
+            gameState.currentAnswer = index;
+            
+            const buttons = document.querySelectorAll('.answer-btn');
+            buttons.forEach((btn, i) => {
+                btn.disabled = true;
+                if (i === index) {
+                    btn.classList.add('selected');
+                }
+            });
+            
+            socket.emit('submitAnswer', index);
+        }
+        
+        // Show results
+        socket.on('results', (data) => {
+            updateFloatingBar();
+            
+            if (!gameState.isSpectating && gameState.currentAnswer === data.correctIndex) {
+                gameState.questionsCorrect++;
+            }
+            
+            const buttons = document.querySelectorAll('.answer-btn');
+            const staticAnswers = document.querySelectorAll('.answer-static');
+            
+            buttons.forEach((btn, index) => {
+                btn.disabled = false;
+                btn.style.opacity = '1';
+                
+                if (index === data.correctIndex) {
+                    btn.classList.add('correct');
+                } else if (index === gameState.currentAnswer && !gameState.isSpectating) {
+                    btn.classList.add('wrong');
+                }
+            });
+            
+            staticAnswers.forEach((answer, index) => {
+                if (index === data.correctIndex) {
+                    answer.style.background = '#059669';
+                    answer.style.color = 'white';
+                    answer.style.borderColor = '#059669';
+                    answer.style.opacity = '1';
+                    const letter = answer.querySelector('.letter');
+                    letter.style.background = 'transparent';
+                    letter.style.color = 'white';
+                    letter.style.borderColor = 'rgba(255,255,255,0.3)';
+                }
+            });
+            
+            setTimeout(() => {
+                let statusText = gameState.isSpectating ? 'SPECTATING' : 'CORRECT';
+                const startRemaining = gameState.previousRemaining || (data.remaining + data.eliminated);
+                
+                document.getElementById('gameArea').innerHTML = `
+                    <div class="results">
+                        <div class="results-title ${gameState.isSpectating ? '' : 'correct'}">
+                            ${statusText}
+                        </div>
+                        <div class="remaining-count-section">
+                            <div class="remaining-number" id="remainingCount">${startRemaining}</div>
+                            ${data.eliminated > 0 ? `<div class="elimination-bubble">-${data.eliminated}</div>` : ''}
+                            <div class="remaining-label">players remaining</div>
+                        </div>
+                        <div class="countdown-text">Next question in 3...</div>
+                    </div>
+                `;
+                
+                if (data.eliminated > 0) {
+                    const remainingElement = document.getElementById('remainingCount');
+                    const duration = 1200;
+                    const steps = 40;
+                    const stepDuration = duration / steps;
+                    const decrement = data.eliminated / steps;
+                    let current = startRemaining;
+                    let step = 0;
+                    
+                    const interval = setInterval(() => {
+                        step++;
+                        if (step >= steps) {
+                            remainingElement.textContent = data.remaining;
+                            clearInterval(interval);
+                        } else {
+                            current = Math.round(startRemaining - (decrement * step));
+                            remainingElement.textContent = current;
+                        }
+                    }, stepDuration);
+                }
+                
+                gameState.previousRemaining = data.remaining;
+            }, 2000);
+        });
+        
+        // Eliminated
+        socket.on('eliminated', (data) => {
+            gameState.isSpectating = true;
+            gameState.position = data.position;
+            gameState.totalPlayers = data.totalPlayers;
+            
+            // Store today's result
+            gameState.todayResult = {
+                position: data.position,
+                totalPlayers: data.totalPlayers,
+                questionsCorrect: data.questionsCorrect || gameState.questionsCorrect,
+                gameNumber: data.gameNumber
+            };
+            
+            const badge = document.getElementById('statusBadge');
+            badge.className = 'status-badge eliminated';
+            badge.textContent = 'ELIMINATED';
+            
+            updateFloatingBar();
+            
+            setTimeout(() => {
+                // Fix percentile calculation
+                const playersBeaten = data.totalPlayers - data.position;
+                const percentile = data.totalPlayers > 1 ? 
+                    Math.round((playersBeaten / (data.totalPlayers - 1)) * 100) : 
+                    100;
+                
+                document.getElementById('gameArea').innerHTML = `
+                    <div class="results">
+                        <div class="results-title eliminated">ELIMINATED</div>
+                        <div class="stat-block">
+                            <div class="stat-label">Your position</div>
+                            <div class="stat-number">#${data.position}</div>
+                            <div class="stat-label">out of ${data.totalPlayers} players</div>
+                        </div>
+                        <div class="percentile" style="margin-top: 24px;">Better than ${percentile}%</div>
+                        <div class="countdown-text">Continuing as spectator...</div>
+                    </div>
+                `;
+                
+                setTimeout(() => {
+                    badge.className = 'status-badge spectating';
+                    badge.textContent = 'SPECTATING';
+                    updateFloatingBar();
+                }, 3000);
+            }, 2000);
+        });
+        
+        // Game over
+        socket.on('gameOver', (data) => {
+            console.log('Game over event received!', data);
+            clearTimeout(window.resultsTimeout);
+            
+            gameState.gameNumber = data.gameNumber;
+            document.getElementById('floatingBar').classList.remove('active');
+            
+            const won = data.winners && data.winners.some(w => w.id === socket.id);
+            
+            // Store final result if we won
+            if (won) {
+                gameState.todayResult = {
+                    position: 1,
+                    totalPlayers: data.totalParticipants,
+                    questionsCorrect: gameState.questionsCorrect,
+                    gameNumber: data.gameNumber
+                };
+            }
+            
+            gameState.finalQuestion = data.finalQuestion || gameState.currentQuestion || 10;
+            
+            let html = '<div class="final-screen">';
+            
+            if (won) {
+                gameState.isWinner = true;
+                gameState.position = 1;
+                gameState.totalPlayers = data.totalParticipants || gameState.totalPlayers;
+                
+                html += '<div class="final-title" style="color: #059669;"><i class="fas fa-trophy"></i> WINNER!</div>';
+                html += '<div class="position-number" style="color: #059669;">#1</div>';
+                html += `<div class="position-context">Last player standing after ${gameState.questionsCorrect || 0} questions!</div>`;
+            } else if (gameState.position) {
+                gameState.isWinner = false;
+                html += '<div class="final-title">GAME OVER</div>';
+                html += '<div class="position-context">Your final position</div>';
+                html += `<div class="position-number">#${gameState.position}</div>`;
+                html += `<div class="position-context">out of ${gameState.totalPlayers} players</div>`;
+                const playersBeaten = gameState.totalPlayers - gameState.position;
+                const percentile = gameState.totalPlayers > 1 ? 
+                    Math.round((playersBeaten / (gameState.totalPlayers - 1)) * 100) : 
+                    100;
+                html += `<div class="percentile">Better than ${percentile}%</div>`;
+            } else {
+                gameState.isWinner = false;
+                html += '<div class="final-title">GAME OVER</div>';
+                if (data.winners && data.winners.length > 0) {
+                    html += `<div class="position-context">Winner: Anonymous</div>`;
+                    html += '<div class="position-context">Thanks for watching!</div>';
+                } else {
+                    html += '<div class="position-context">No winners this round!</div>';
+                }
+            }
+            
+            html += `
+                <div class="action-buttons">
+                    <button class="action-btn" onclick="shareResult()">
+                        <i class="fas fa-share-alt"></i> Share
+                    </button>
+                    <button class="action-btn" onclick="returnToLobby()">
+                        See you tomorrow!
+                    </button>
+                </div>
+            </div>`;
+            
+            document.getElementById('gameArea').innerHTML = html;
+            document.getElementById('statusBadge').className = 'status-badge';
+        });
+        
+        // Start test game
+        function startTestGame() {
+            console.log('Requesting test game start...');
+            socket.emit('requestTestGame');
+        }
+        
+        // Share result
+        function shareResult() {
+            let text = '';
+            const result = gameState.todayResult;
+            
+            if (!result) {
+                text = `Quiz Royale #${gameState.gameNumber}\nJoin the daily battle royale trivia!\nPlay at: ${window.location.origin}`;
+            } else if (result.position === 1) {
+                let squares = '';
+                for (let i = 0; i < 10; i++) {
+                    squares += i < result.questionsCorrect ? '🟩' : '⬜';
+                }
+                
+                text = `Quiz Royale #${result.gameNumber || gameState.gameNumber}\n🏆 WINNER! 🏆\nOutlasted ${result.totalPlayers - 1} player${result.totalPlayers - 1 !== 1 ? 's' : ''} in ${result.questionsCorrect} questions!\n\n${squares}\n\nPlay at: ${window.location.origin}`;
+            } else {
+                const playersBeaten = result.totalPlayers - result.position;
+                const percentile = result.totalPlayers > 1 ? 
+                    Math.round((playersBeaten / (result.totalPlayers - 1)) * 100) : 
+                    100;
+                let squares = '';
+                for (let i = 0; i < 10; i++) {
+                    if (i < result.questionsCorrect) {
+                        squares += '🟩';
+                    } else if (i === result.questionsCorrect) {
+                        squares += '❌';
+                    } else {
+                        squares += '⬜';
+                    }
+                }
+                
+                text = `Quiz Royale #${result.gameNumber || gameState.gameNumber}\n#${result.position}/${result.totalPlayers} (Better than ${percentile}%)\n\n${squares}\n\nPlay at: ${window.location.origin}`;
+            }
+            
+            navigator.clipboard.writeText(text).then(() => {
+                const shareBtn = event.target.closest('.action-btn');
+                if (shareBtn) {
+                    const originalHTML = shareBtn.innerHTML;
+                    shareBtn.innerHTML = '<i class="fas fa-check"></i> Copied!';
+                    setTimeout(() => {
+                        shareBtn.innerHTML = originalHTML;
+                    }, 2000);
+                }
+            }).catch(err => {
+                console.error('Failed to copy:', err);
+                alert('Result copied:\n\n' + text);
+            });
+        }
+        
+        // Return to lobby
+        function returnToLobby() {
+            socket.emit('leaveGame');
+            gameState.isSpectating = false;
+            gameState.position = null;
+            gameState.questionsCorrect = 0;
+            gameState.status = 'waiting';
+            
+            document.getElementById('statusBadge').className = 'status-badge';
+            document.getElementById('floatingBar').classList.remove('active');
+            
+            // Hide player count in header when returning to lobby
+            const countDisplay = document.getElementById('playerCountDisplay');
+            const separator = document.getElementById('infoSeparator');
+            if (countDisplay) countDisplay.style.display = 'none';
+            if (separator) separator.style.display = 'none';
+            
+            // Show lobby screen with today's result
+            showLobbyScreen();
+        }
+    </script>
+</body>
+</html>
