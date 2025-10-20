@@ -16,10 +16,12 @@
             font-family: 'Poppins', sans-serif;
             background: #6366F1;
             min-height: 100vh;
+            min-height: 100dvh; /* Dynamic viewport height for mobile browsers */
             display: flex;
             align-items: center;
             justify-content: center;
             padding: 20px;
+            padding-bottom: env(safe-area-inset-bottom, 20px); /* Account for iOS safe areas */
         }
         
         .container {
@@ -686,11 +688,15 @@
         @media (max-width: 768px) {
             body {
                 padding: 10px;
+                /* Slightly shift content up to visually center accounting for browser UI */
+                padding-bottom: 40px;
             }
             
             .game-box {
                 padding: 20px 16px;
                 margin-top: 35px; /* Space for status badge */
+                /* Slight negative margin to shift up for visual centering */
+                margin-bottom: -20px;
             }
             
             .header {
