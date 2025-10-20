@@ -154,18 +154,21 @@
         
         /* Status Badge */
         .status-badge {
-            position: absolute;
-            top: 16px;
-            right: 16px;
+            position: fixed;
+            top: 10px;
+            left: 50%;
+            transform: translateX(-50%);
             background: #64748B;
             color: white;
-            padding: 6px 12px;
-            border-radius: 8px;
+            padding: 6px 16px;
+            border-radius: 20px;
             font-size: 0.75rem;
             font-weight: 600;
             text-transform: uppercase;
             letter-spacing: 0.5px;
             display: none;
+            z-index: 100;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
         }
         
         .status-badge.spectating {
@@ -179,9 +182,9 @@
         
         /* Test Mode Badge */
         .test-mode-badge {
-            position: absolute;
-            top: 16px;
-            left: 16px;
+            position: fixed;
+            top: 10px;
+            left: 10px;
             background: #F59E0B;
             color: white;
             padding: 6px 12px;
@@ -191,6 +194,7 @@
             text-transform: uppercase;
             letter-spacing: 0.5px;
             display: none;
+            z-index: 100;
         }
         
         .test-mode-badge.active {
@@ -682,12 +686,11 @@
         @media (max-width: 768px) {
             body {
                 padding: 10px;
-                align-items: flex-start;
-                padding-top: 20px;
             }
             
             .game-box {
                 padding: 20px 16px;
+                margin-top: 35px; /* Space for status badge */
             }
             
             .header {
@@ -785,11 +788,12 @@
     </style>
 </head>
 <body>
+    <!-- Status badges outside the main container for better positioning -->
+    <div class="test-mode-badge" id="testModeBadge">TEST MODE</div>
+    <div class="status-badge" id="statusBadge"></div>
+    
     <div class="container">
         <div class="game-box">
-            <div class="test-mode-badge" id="testModeBadge">TEST MODE</div>
-            <div class="status-badge" id="statusBadge"></div>
-            
             <div class="header">
                 <div class="logo">Quiz Royale</div>
                 <div class="game-info">
