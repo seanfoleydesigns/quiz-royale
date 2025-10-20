@@ -333,6 +333,24 @@
             color: #6366F1;
         }
         
+        /* Remove sticky hover states on touch devices */
+        @media (hover: none) and (pointer: coarse) {
+            .answer-btn:hover {
+                border-color: #E0E0E0;
+                background: #FAFAFA;
+            }
+            
+            .answer-btn:hover .letter {
+                border-color: #E0E0E0;
+                color: #666;
+            }
+            
+            .answer-btn:active:not(:disabled):not(.correct):not(.wrong):not(.selected) {
+                border-color: #6366F1;
+                background: #FFF;
+            }
+        }
+        
         .answer-btn:disabled {
             cursor: not-allowed;
             opacity: 0.5;
@@ -661,13 +679,107 @@
         }
         
         /* Mobile adjustments */
-        @media (max-width: 400px) {
+        @media (max-width: 768px) {
+            body {
+                padding: 10px;
+                align-items: flex-start;
+                padding-top: 20px;
+            }
+            
             .game-box {
-                padding: 24px 20px;
+                padding: 20px 16px;
+            }
+            
+            .header {
+                margin-bottom: 20px;
             }
             
             .logo {
                 font-size: 1.5rem;
+                margin-bottom: 4px;
+            }
+            
+            /* Question screen mobile optimizations */
+            .question-meta {
+                margin-bottom: 16px;
+                padding-bottom: 12px;
+            }
+            
+            .question-text {
+                font-size: 1rem;
+                margin: 12px 0 20px 0;
+                min-height: 40px;
+            }
+            
+            .question-category {
+                margin-bottom: 8px;
+            }
+            
+            .answers {
+                gap: 8px;
+            }
+            
+            .answer-btn {
+                padding: 12px 14px;
+                font-size: 0.875rem;
+            }
+            
+            .timer-bar-container {
+                margin-top: 16px;
+            }
+            
+            /* Countdown adjustments */
+            .countdown {
+                font-size: 4rem;
+            }
+            
+            /* Results screen adjustments */
+            .results {
+                padding: 16px 0;
+            }
+            
+            .remaining-number {
+                font-size: 3.5rem;
+                margin-bottom: 8px;
+            }
+            
+            .results-title {
+                font-size: 1.125rem;
+                margin-bottom: 24px;
+            }
+            
+            /* Today's result adjustments */
+            .result-position {
+                font-size: 2.5rem;
+            }
+            
+            .countdown-display {
+                padding: 16px 0;
+            }
+            
+            .countdown-timer {
+                font-size: 1.75rem;
+            }
+        }
+        
+        @media (max-height: 700px) {
+            /* Extra compact for small screens */
+            .question-text {
+                margin: 8px 0 16px 0;
+                min-height: 30px;
+            }
+            
+            .answers {
+                gap: 6px;
+            }
+            
+            .answer-btn {
+                padding: 10px 12px;
+            }
+            
+            .question-meta {
+                margin-bottom: 12px;
+                padding-bottom: 10px;
             }
         }
     </style>
@@ -955,6 +1067,9 @@
             gameState.status = 'playing';
             updateFloatingBar();
             
+            // Clear any previous answer selection
+            gameState.currentAnswer = null;
+            
             // Ensure player count is showing in header during game
             const countDisplay = document.getElementById('playerCountDisplay');
             const separator = document.getElementById('infoSeparator');
@@ -1020,7 +1135,9 @@
             `;
             
             document.getElementById('gameArea').innerHTML = html;
-            gameState.currentAnswer = null;
+            
+            // Force clear any lingering focus/active states on mobile
+            document.activeElement.blur();
             
             setTimeout(() => {
                 const timerBar = document.getElementById('timerBar');
