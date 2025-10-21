@@ -364,6 +364,7 @@
             align-items: center;
             gap: 12px;
             font-family: 'Poppins', sans-serif;
+            position: relative;
         }
         
         .answer-btn .letter {
@@ -378,6 +379,26 @@
             font-weight: 600;
             font-size: 0.875rem;
             color: #666;
+            flex-shrink: 0;
+        }
+        
+        .answer-btn .answer-text {
+            flex: 1;
+        }
+        
+        .answer-percentage {
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: #64748B;
+            margin-left: auto;
+            padding-left: 12px;
+            flex-shrink: 0;
+        }
+        
+        .answer-btn.correct .answer-percentage,
+        .answer-btn.wrong .answer-percentage,
+        .answer-btn.selected .answer-percentage {
+            color: rgba(255, 255, 255, 0.9);
         }
         
         .answer-btn:hover:not(:disabled):not(.correct):not(.wrong):not(.selected) {
@@ -463,6 +484,26 @@
             gap: 12px;
             opacity: 0.4;
             cursor: not-allowed;
+            position: relative;
+        }
+        
+        .answer-static .answer-text {
+            flex: 1;
+        }
+        
+        .answer-static .letter {
+            width: 24px;
+            height: 24px;
+            background: #FFF;
+            border: 1px solid #E0E0E0;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 0.875rem;
+            color: #666;
+            flex-shrink: 0;
         }
         
         /* Results Screen */
@@ -917,7 +958,7 @@
             .modal-button {
                 padding: 12px;
                 font-size: 0.875rem;
-                margin-top: 16px;
+                margin-top: 20px;
             }
             
             .stats-grid {
@@ -964,6 +1005,11 @@
             .answer-btn {
                 padding: 12px 14px;
                 font-size: 0.875rem;
+            }
+            
+            .answer-percentage {
+                font-size: 0.8125rem;
+                padding-left: 8px;
             }
             
             .timer-bar-container {
@@ -1013,6 +1059,11 @@
             
             .answer-btn {
                 padding: 10px 12px;
+            }
+            
+            .answer-percentage {
+                font-size: 0.75rem;
+                padding-left: 6px;
             }
             
             .question-meta {
@@ -1517,7 +1568,7 @@
                     html += `
                         <div class="answer-static">
                             <span class="letter">${letter}</span>
-                            <span>${answer}</span>
+                            <span class="answer-text">${answer}</span>
                         </div>
                     `;
                 });
@@ -1527,7 +1578,7 @@
                     html += `
                         <button class="answer-btn" onclick="submitAnswer(${index})">
                             <span class="letter">${letter}</span>
-                            <span>${answer}</span>
+                            <span class="answer-text">${answer}</span>
                         </button>
                     `;
                 });
@@ -1594,6 +1645,13 @@
                 btn.disabled = false;
                 btn.style.opacity = '1';
                 
+                // Add percentage badge
+                const percentage = data.answerPercentages ? data.answerPercentages[index] : 0;
+                const percentageBadge = document.createElement('span');
+                percentageBadge.className = 'answer-percentage';
+                percentageBadge.textContent = `${percentage}%`;
+                btn.appendChild(percentageBadge);
+                
                 if (index === data.correctIndex) {
                     btn.classList.add('correct');
                 } else if (index === gameState.currentAnswer && !gameState.isSpectating) {
@@ -1611,6 +1669,21 @@
                     letter.style.background = 'transparent';
                     letter.style.color = 'white';
                     letter.style.borderColor = 'rgba(255,255,255,0.3)';
+                    
+                    // Add percentage badge for spectators
+                    const percentage = data.answerPercentages ? data.answerPercentages[index] : 0;
+                    const percentageBadge = document.createElement('span');
+                    percentageBadge.className = 'answer-percentage';
+                    percentageBadge.style.color = 'rgba(255, 255, 255, 0.9)';
+                    percentageBadge.textContent = `${percentage}%`;
+                    answer.appendChild(percentageBadge);
+                } else {
+                    // Add percentage badge for non-correct answers too
+                    const percentage = data.answerPercentages ? data.answerPercentages[index] : 0;
+                    const percentageBadge = document.createElement('span');
+                    percentageBadge.className = 'answer-percentage';
+                    percentageBadge.textContent = `${percentage}%`;
+                    answer.appendChild(percentageBadge);
                 }
             });
             
