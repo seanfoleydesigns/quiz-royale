@@ -706,6 +706,11 @@
             animation: fadeIn 0.2s ease-out;
         }
         
+        /* Prevent body scroll when modal is open */
+        body.modal-open {
+            overflow: hidden;
+        }
+        
         @keyframes fadeIn {
             from {
                 opacity: 0;
@@ -723,6 +728,9 @@
             width: 100%;
             position: relative;
             animation: slideUp 0.3s ease-out;
+            max-height: 85vh;
+            max-height: 85dvh;
+            overflow-y: auto;
         }
         
         @keyframes slideUp {
@@ -873,6 +881,65 @@
             .logo {
                 font-size: 1.5rem;
                 margin-bottom: 4px;
+            }
+            
+            /* Compact modals for mobile */
+            .modal-content {
+                padding: 24px 20px;
+                max-height: 80vh;
+                max-height: 80dvh;
+            }
+            
+            .modal-title {
+                font-size: 1.25rem;
+                margin-bottom: 16px;
+            }
+            
+            .modal-close {
+                top: 12px;
+                right: 12px;
+                width: 28px;
+                height: 28px;
+                font-size: 1.25rem;
+            }
+            
+            .tutorial-list li {
+                padding: 12px 0;
+                font-size: 0.875rem;
+                gap: 12px;
+            }
+            
+            .tutorial-list li i {
+                font-size: 1.125rem;
+                min-width: 18px;
+            }
+            
+            .modal-button {
+                padding: 12px;
+                font-size: 0.875rem;
+                margin-top: 16px;
+            }
+            
+            .stats-grid {
+                gap: 14px;
+            }
+            
+            .stat-item {
+                padding: 16px;
+            }
+            
+            .stat-icon {
+                font-size: 1.25rem;
+                margin-bottom: 6px;
+            }
+            
+            .stat-value {
+                font-size: 2rem;
+                margin-bottom: 6px;
+            }
+            
+            .stat-name {
+                font-size: 0.8125rem;
             }
             
             .question-meta {
@@ -1131,21 +1198,31 @@
         
         function openTutorial() {
             document.getElementById('tutorialModal').classList.add('active');
+            document.body.classList.add('modal-open');
         }
         
         function openStats() {
             loadStatsDisplay();
             document.getElementById('statsModal').classList.add('active');
+            document.body.classList.add('modal-open');
         }
         
         function closeModal(modalId) {
             document.getElementById(modalId).classList.remove('active');
+            document.body.classList.remove('modal-open');
         }
         
         document.addEventListener('keydown', (e) => {
             if (e.key === 'Escape') {
-                closeModal('tutorialModal');
-                closeModal('statsModal');
+                const tutorialModal = document.getElementById('tutorialModal');
+                const statsModal = document.getElementById('statsModal');
+                
+                if (tutorialModal.classList.contains('active')) {
+                    closeModal('tutorialModal');
+                }
+                if (statsModal.classList.contains('active')) {
+                    closeModal('statsModal');
+                }
             }
         });
         
