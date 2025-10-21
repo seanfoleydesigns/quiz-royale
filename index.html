@@ -1562,7 +1562,7 @@
                 
                 gameState.previousRemaining = data.remaining;
                 
-                // Start countdown at 3 seconds mark (2 seconds after results shown)
+                // Start countdown after 4 full seconds on results screen
                 setTimeout(() => {
                     const countdownEl = document.getElementById('nextQuestionCountdown');
                     if (countdownEl) {
@@ -1578,7 +1578,7 @@
                             }
                         }, 1000);
                     }
-                }, 2000);
+                }, 4000); // Changed from 2000 to 4000
             }, 2000);
         });
         
