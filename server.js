@@ -13,7 +13,7 @@ app.get('/', (req, res) => {
 });
 
 // Test mode toggle (set to false for production)
-const TEST_MODE = true; // Keep false for production
+const TEST_MODE = false; // Keep false for production
 
 // Force start endpoint for testing (remove for production)
 if (TEST_MODE) {
@@ -571,7 +571,7 @@ function processAnswers() {
                     const result = {
                         hasPlayed: true,
                         result: {
-                            position: survivors.length + eliminated.length,
+                            position: alivePlayers.length + eliminated.length, // Tied for worst position in eliminated group
                             totalPlayers: gameState.totalParticipants,
                             questionsCorrect: player.correctAnswers,
                             gameNumber: getGameNumber()
@@ -612,7 +612,7 @@ function processAnswers() {
         const player = gameState.players.get(playerId);
         if (player && !player.leftGame) {
             io.to(playerId).emit('eliminated', {
-                position: alivePlayers.length + 1,
+                position: alivePlayers.length + eliminated.length, // Tied for worst position in eliminated group
                 totalPlayers: gameState.totalParticipants,
                 questionsCorrect: player.correctAnswers,
                 gameNumber: getGameNumber()
@@ -750,4 +750,3 @@ http.listen(PORT, async () => {
     // Setup robust daily scheduling with node-cron
     setupDailySchedule();
 });
-
