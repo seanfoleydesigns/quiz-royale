@@ -1783,6 +1783,7 @@
             badge.className = 'status-badge eliminated';
             badge.textContent = 'ELIMINATED';
             
+            // Wait 8 seconds so eliminated players see the full results screen first
             setTimeout(() => {
                 const playersBeaten = data.totalPlayers - data.position;
                 const percentile = data.totalPlayers > 1 ? 
@@ -1801,7 +1802,7 @@
                         <div class="countdown-text">Continuing as spectator...</div>
                     </div>
                 `;
-            }, 4000);
+            }, 8000);
         });
         
         socket.on('gameOver', (data) => {
