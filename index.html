@@ -50,6 +50,10 @@
             color: #1E293B;
         }
         
+        .logo .game-number {
+            color: #6366F1;
+        }
+        
         .header-buttons {
             display: flex;
             gap: 12px;
@@ -129,10 +133,9 @@
         .countdown-label {
             font-size: 0.875rem;
             color: #64748B;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
+            letter-spacing: 0.3px;
             margin-bottom: 12px;
-            font-weight: 600;
+            font-weight: 500;
         }
         
         .countdown-timer {
@@ -140,13 +143,13 @@
             font-weight: 700;
             color: #1E293B;
             font-variant-numeric: tabular-nums;
-            margin-bottom: 8px;
+            margin-bottom: 4px;
         }
         
         .countdown-subtitle {
-            font-size: 0.75rem;
+            font-size: 0.8125rem;
             color: #94A3B8;
-            margin-bottom: 20px;
+            margin-bottom: 16px;
         }
         
         .waiting-count {
@@ -995,7 +998,7 @@
     <div class="container">
         <div class="game-box">
             <div class="header">
-                <div class="logo">Quiz Royale</div>
+                <div class="logo">Quiz Royale <span class="game-number" id="headerGameNumber">#-</span></div>
                 <div class="header-buttons">
                     <button class="header-btn" onclick="openTutorial()">
                         <i class="fas fa-question-circle"></i> How to Play
@@ -1004,7 +1007,7 @@
                         <i class="fas fa-chart-bar"></i> Stats
                     </button>
                 </div>
-                <div class="game-info">
+                <div class="game-info" id="gameInfoHeader" style="display: none;">
                     <span class="quiz-number" id="lobbyQuizNumber">Quiz #<span id="lobbyGameNumber">-</span></span>
                     <span class="info-separator" id="infoSeparator" style="display: none;"></span>
                     <span class="player-count" id="playerCountDisplay" style="display: none;">
@@ -1247,12 +1250,13 @@
                     </div>
                 `;
             } else {
+                const playerText = gameState.waitingPlayers === 1 ? 'player waiting' : 'players waiting';
                 html = `
                     <div class="countdown-display">
-                        <div class="countdown-label">Next Game In</div>
+                        <div class="countdown-label">Next game in</div>
                         <div class="countdown-timer" id="countdownTimer">--:--:--</div>
-                        <div class="countdown-subtitle">Daily quiz starts at 8pm EST</div>
-                        <div class="waiting-count">${gameState.waitingPlayers} players waiting</div>
+                        <div class="countdown-subtitle">8pm EST daily</div>
+                        <div class="waiting-count">${gameState.waitingPlayers} ${playerText}</div>
                     </div>
                 `;
                 
@@ -1304,8 +1308,10 @@
             }
             
             if (gameState.status === 'waiting') {
+                const gameInfoHeader = document.getElementById('gameInfoHeader');
                 const countDisplay = document.getElementById('playerCountDisplay');
                 const separator = document.getElementById('infoSeparator');
+                if (gameInfoHeader) gameInfoHeader.style.display = 'none';
                 if (countDisplay) countDisplay.style.display = 'none';
                 if (separator) separator.style.display = 'none';
                 showLobbyScreen();
@@ -1315,19 +1321,23 @@
         socket.on('currentGameNumber', (number) => {
             console.log('Received game number:', number);
             gameState.gameNumber = number;
+            document.getElementById('headerGameNumber').textContent = `#${number}`;
             document.getElementById('lobbyGameNumber').textContent = number;
         });
         
         socket.on('playerCount', (count) => {
             document.getElementById('playerCount').textContent = count;
+            const gameInfoHeader = document.getElementById('gameInfoHeader');
             const countDisplay = document.getElementById('playerCountDisplay');
             const separator = document.getElementById('infoSeparator');
             const label = document.getElementById('playerCountLabel');
             
             if (gameState.status === 'waiting') {
+                if (gameInfoHeader) gameInfoHeader.style.display = 'none';
                 if (countDisplay) countDisplay.style.display = 'none';
                 if (separator) separator.style.display = 'none';
             } else {
+                if (gameInfoHeader) gameInfoHeader.style.display = 'flex';
                 if (countDisplay) countDisplay.style.display = 'inline';
                 if (separator) separator.style.display = 'inline-block';
                 if (label) label.textContent = 'remaining';
@@ -1336,10 +1346,12 @@
         
         socket.on('playersRemaining', (count) => {
             document.getElementById('playerCount').textContent = count;
+            const gameInfoHeader = document.getElementById('gameInfoHeader');
             const countDisplay = document.getElementById('playerCountDisplay');
             const separator = document.getElementById('infoSeparator');
             const label = document.getElementById('playerCountLabel');
             
+            if (gameInfoHeader) gameInfoHeader.style.display = 'flex';
             if (countDisplay) countDisplay.style.display = 'inline';
             if (separator) separator.style.display = 'inline-block';
             if (label) label.textContent = 'remaining';
@@ -1349,7 +1361,8 @@
             gameState.waitingPlayers = count;
             const waitingEl = document.querySelector('.waiting-count');
             if (waitingEl) {
-                waitingEl.textContent = `${count} players waiting`;
+                const playerText = count === 1 ? 'player waiting' : 'players waiting';
+                waitingEl.textContent = `${count} ${playerText}`;
             }
         });
         
@@ -1359,9 +1372,11 @@
             gameState.hasPlayedToday = true;
             gameState.status = 'starting';
             
+            const gameInfoHeader = document.getElementById('gameInfoHeader');
             const countDisplay = document.getElementById('playerCountDisplay');
             const separator = document.getElementById('infoSeparator');
             const label = document.getElementById('playerCountLabel');
+            if (gameInfoHeader) gameInfoHeader.style.display = 'flex';
             if (countDisplay) countDisplay.style.display = 'inline';
             if (separator) separator.style.display = 'inline-block';
             if (label) label.textContent = 'remaining';
@@ -1371,8 +1386,10 @@
             gameState.previousRemaining = null;
             gameState.status = 'starting';
             
+            const gameInfoHeader = document.getElementById('gameInfoHeader');
             const countDisplay = document.getElementById('playerCountDisplay');
             const separator = document.getElementById('infoSeparator');
+            if (gameInfoHeader) gameInfoHeader.style.display = 'flex';
             if (countDisplay) countDisplay.style.display = 'inline';
             if (separator) separator.style.display = 'inline-block';
             
@@ -1386,8 +1403,10 @@
             
             gameState.currentAnswer = null;
             
+            const gameInfoHeader = document.getElementById('gameInfoHeader');
             const countDisplay = document.getElementById('playerCountDisplay');
             const separator = document.getElementById('infoSeparator');
+            if (gameInfoHeader) gameInfoHeader.style.display = 'flex';
             if (countDisplay) countDisplay.style.display = 'inline';
             if (separator) separator.style.display = 'inline-block';
             
@@ -1750,8 +1769,10 @@
             document.getElementById('statusBadge').className = 'status-badge';
             document.getElementById('floatingBar').classList.remove('active');
             
+            const gameInfoHeader = document.getElementById('gameInfoHeader');
             const countDisplay = document.getElementById('playerCountDisplay');
             const separator = document.getElementById('infoSeparator');
+            if (gameInfoHeader) gameInfoHeader.style.display = 'none';
             if (countDisplay) countDisplay.style.display = 'none';
             if (separator) separator.style.display = 'none';
             
