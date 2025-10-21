@@ -1535,7 +1535,7 @@
                             ${data.eliminated > 0 ? `<div class="elimination-bubble">-${data.eliminated}</div>` : ''}
                             <div class="remaining-label">players remaining</div>
                         </div>
-                        <div class="countdown-text">Next question in 3...</div>
+                        <div class="countdown-text" id="nextQuestionCountdown"></div>
                     </div>
                 `;
                 
@@ -1561,6 +1561,24 @@
                 }
                 
                 gameState.previousRemaining = data.remaining;
+                
+                // Start countdown at 3 seconds mark (2 seconds after results shown)
+                setTimeout(() => {
+                    const countdownEl = document.getElementById('nextQuestionCountdown');
+                    if (countdownEl) {
+                        let secondsLeft = 3;
+                        countdownEl.textContent = `Next question in ${secondsLeft}...`;
+                        
+                        const countdownInterval = setInterval(() => {
+                            secondsLeft--;
+                            if (secondsLeft > 0 && countdownEl) {
+                                countdownEl.textContent = `Next question in ${secondsLeft}...`;
+                            } else {
+                                clearInterval(countdownInterval);
+                            }
+                        }, 1000);
+                    }
+                }, 2000);
             }, 2000);
         });
         
