@@ -1939,10 +1939,17 @@
                     shareBtn.innerHTML = '<i class="fas fa-check"></i> Copied!';
                     setTimeout(() => {
                         shareBtn.innerHTML = originalHTML;
-                        // Force blur to remove mobile hover state
+                        // Disable pointer events briefly to kill hover state
+                        shareBtn.style.pointerEvents = 'none';
                         shareBtn.blur();
                         // Force style reset
-                        void shareBtn.offsetHeight;
+                        shareBtn.style.background = '';
+                        shareBtn.style.color = '';
+                        shareBtn.style.borderColor = '';
+                        // Re-enable after a tiny delay
+                        setTimeout(() => {
+                            shareBtn.style.pointerEvents = '';
+                        }, 50);
                     }, 2000);
                 }
             }).catch(err => {
