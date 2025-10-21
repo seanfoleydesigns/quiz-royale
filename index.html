@@ -1900,7 +1900,9 @@
                     }
                 }
                 
-                text = `Triviarena #${result.gameNumber || gameState.gameNumber}\n#${result.position}/${result.totalPlayers} (Better than ${percentile}%)\n\n${squares}\n\nPlay at: ${window.location.origin}`;
+                const eliminatedOnQuestion = result.questionsCorrect + 1;
+                
+                text = `Triviarena #${result.gameNumber || gameState.gameNumber}\n#${result.position}/${result.totalPlayers} • Eliminated on Q${eliminatedOnQuestion}\n\n${squares}\n\nPlay at: ${window.location.origin}`;
             }
             
             navigator.clipboard.writeText(text).then(() => {
