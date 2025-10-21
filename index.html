@@ -1593,29 +1593,40 @@
                 </div>
             `;
             
-            document.getElementById('gameArea').innerHTML = html;
+            // Completely clear and force a repaint before rendering
+            const gameArea = document.getElementById('gameArea');
+            gameArea.innerHTML = '';
+            void gameArea.offsetHeight; // Force reflow
             
-            // Aggressively remove focus and clear any lingering mobile touch states
-            if (document.activeElement) {
-                document.activeElement.blur();
-            }
-            
-            // Force a reflow to clear any cached states
-            void document.getElementById('gameArea').offsetHeight;
-            
-            // Remove focus from all buttons as a safety measure
+            // Small delay to ensure clean state
             setTimeout(() => {
-                document.querySelectorAll('.answer-btn').forEach(btn => {
-                    btn.blur();
-                });
-            }, 0);
-            
-            setTimeout(() => {
-                const timerBar = document.getElementById('timerBar');
-                if (timerBar) {
-                    timerBar.style.width = '0%';
+                gameArea.innerHTML = html;
+                
+                // Aggressively remove focus and clear any lingering mobile touch states
+                if (document.activeElement) {
+                    document.activeElement.blur();
                 }
-            }, 50);
+                
+                // Force another reflow
+                void gameArea.offsetHeight;
+                
+                // Remove focus from all buttons
+                setTimeout(() => {
+                    document.querySelectorAll('.answer-btn').forEach(btn => {
+                        btn.blur();
+                        // Force remove any webkit states
+                        btn.style.webkitTapHighlightColor = 'transparent';
+                    });
+                }, 0);
+                
+                // Start timer bar animation after render
+                setTimeout(() => {
+                    const timerBar = document.getElementById('timerBar');
+                    if (timerBar) {
+                        timerBar.style.width = '0%';
+                    }
+                }, 50);
+            }, 10);
         });
         
         socket.on('timer', (timeLeft) => {
