@@ -623,10 +623,10 @@ function processAnswers() {
     // Check if game should end
     if (gameState.currentQuestion >= 9 || alivePlayers.length <= 1) {
         console.log(`Game ending - Question: ${gameState.currentQuestion + 1}/10, Players remaining: ${alivePlayers.length}`);
-        setTimeout(() => endGame(), 5000);
+        setTimeout(() => endGame(), 7000);
     } else {
         gameState.currentQuestion++;
-        setTimeout(() => nextQuestion(), 5000);
+        setTimeout(() => nextQuestion(), 7000);
     }
 }
 
@@ -750,6 +750,7 @@ http.listen(PORT, async () => {
     // Setup robust daily scheduling with node-cron
     setupDailySchedule();
 });
+
 
 
 
