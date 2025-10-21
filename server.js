@@ -16,7 +16,7 @@ app.get('/', (req, res) => {
 });
 
 // Test mode toggle (set to false for production)
-const TEST_MODE = false; // Keep false for production
+const TEST_MODE = true; // Keep false for production
 
 // Force start endpoint for testing (remove for production)
 if (TEST_MODE) {
@@ -560,8 +560,18 @@ function processAnswers() {
     let eliminated = [];
     let survivors = [];
     
+    // Track answer distribution
+    const answerCounts = [0, 0, 0, 0]; // For 4 answers
+    let totalAnswers = 0;
+    
     gameState.players.forEach(player => {
         if (player.alive && !player.leftGame && player.participatedInGame) {
+            // Count the answer (even if null/timeout)
+            if (player.currentAnswer !== null && player.currentAnswer !== undefined) {
+                answerCounts[player.currentAnswer]++;
+                totalAnswers++;
+            }
+            
             if (player.currentAnswer === correctIndex) {
                 player.correctAnswers++;
                 survivors.push(player.id);
@@ -571,6 +581,11 @@ function processAnswers() {
             }
         }
     });
+    
+    // Calculate percentages
+    const answerPercentages = answerCounts.map(count => 
+        totalAnswers > 0 ? Math.round((count / totalAnswers) * 100) : 0
+    );
     
     const alivePlayers = Array.from(gameState.players.values()).filter(p => 
         p.alive && !p.leftGame && p.participatedInGame
@@ -605,7 +620,8 @@ function processAnswers() {
                 correctIndex: correctIndex,
                 eliminated: eliminated.length,
                 remaining: alivePlayers.length,
-                totalPlayers: gameState.totalParticipants
+                totalPlayers: gameState.totalParticipants,
+                answerPercentages: answerPercentages
             });
         }
     });
@@ -756,4 +772,3 @@ http.listen(PORT, async () => {
     // Setup robust daily scheduling with node-cron
     setupDailySchedule();
 });
-
