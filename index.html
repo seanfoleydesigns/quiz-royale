@@ -86,6 +86,17 @@
             border-color: #6366F1;
         }
         
+        .header-btn:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+        }
+        
+        .header-btn:disabled:hover {
+            background: #F8FAFC;
+            color: #64748B;
+            border-color: #E2E8F0;
+        }
+        
         .header-btn i {
             font-size: 0.875rem;
         }
@@ -596,54 +607,6 @@
             border-color: #D97706;
         }
         
-        /* Floating Action Bar */
-        .floating-bar {
-            position: fixed;
-            bottom: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: white;
-            border-radius: 12px;
-            border: 1px solid #E0E0E0;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-            display: none;
-            padding: 8px;
-            gap: 8px;
-            z-index: 1000;
-            max-width: 320px;
-            width: auto;
-        }
-        
-        .floating-bar.active {
-            display: flex;
-        }
-        
-        .floating-btn {
-            background: white;
-            border: 1px solid #E0E0E0;
-            color: #333;
-            padding: 10px 20px;
-            border-radius: 8px;
-            font-size: 0.875rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.15s ease;
-            font-family: 'Poppins', sans-serif;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-        }
-        
-        .floating-btn:hover {
-            background: #6366F1;
-            color: white;
-            border-color: #6366F1;
-        }
-        
-        .floating-btn i {
-            font-size: 0.875rem;
-        }
-        
         /* Timer Bar */
         .timer-bar-container {
             margin-top: 32px;
@@ -1006,6 +969,9 @@
                     <button class="header-btn" onclick="openStats()">
                         <i class="fas fa-chart-bar"></i> Stats
                     </button>
+                    <button class="header-btn" id="shareBtn" onclick="shareResult()" disabled>
+                        <i class="fas fa-share-alt"></i> Share
+                    </button>
                 </div>
                 <div class="game-info" id="gameInfoHeader" style="display: none;">
                     <span class="quiz-number" id="lobbyQuizNumber">Quiz #<span id="lobbyGameNumber">-</span></span>
@@ -1018,15 +984,6 @@
             
             <div id="gameArea"></div>
         </div>
-    </div>
-    
-    <div class="floating-bar" id="floatingBar">
-        <button class="floating-btn" onclick="shareResult()">
-            <i class="fas fa-share"></i> Share
-        </button>
-        <button class="floating-btn" onclick="returnToLobby()">
-            <i class="fas fa-home"></i> Leave
-        </button>
     </div>
     
     <div class="modal-overlay" id="tutorialModal" onclick="closeModal('tutorialModal')">
@@ -1278,14 +1235,15 @@
                 if (countdownInterval) clearInterval(countdownInterval);
                 countdownInterval = setInterval(updateCountdown, 1000);
             }
+            
+            // Update share button state
+            updateShareButton();
         }
         
-        function updateFloatingBar() {
-            const floatingBar = document.getElementById('floatingBar');
-            if (gameState.isSpectating) {
-                floatingBar.classList.add('active');
-            } else {
-                floatingBar.classList.remove('active');
+        function updateShareButton() {
+            const shareBtn = document.getElementById('shareBtn');
+            if (shareBtn) {
+                shareBtn.disabled = !gameState.hasPlayedToday;
             }
         }
         
@@ -1316,6 +1274,8 @@
                 if (separator) separator.style.display = 'none';
                 showLobbyScreen();
             }
+            
+            updateShareButton();
         });
         
         socket.on('currentGameNumber', (number) => {
@@ -1399,7 +1359,6 @@
         
         socket.on('question', (data) => {
             gameState.status = 'playing';
-            updateFloatingBar();
             
             gameState.currentAnswer = null;
             
@@ -1511,8 +1470,6 @@
         }
         
         socket.on('results', (data) => {
-            updateFloatingBar();
-            
             if (!gameState.isSpectating && gameState.currentAnswer === data.correctIndex) {
                 gameState.questionsCorrect++;
             }
@@ -1600,12 +1557,11 @@
             };
             
             updateStatsAfterGame(data.position, data.totalPlayers, data.gameNumber);
+            updateShareButton();
             
             const badge = document.getElementById('statusBadge');
             badge.className = 'status-badge eliminated';
             badge.textContent = 'ELIMINATED';
-            
-            updateFloatingBar();
             
             setTimeout(() => {
                 const playersBeaten = data.totalPlayers - data.position;
@@ -1629,7 +1585,6 @@
                 setTimeout(() => {
                     badge.className = 'status-badge spectating';
                     badge.textContent = 'SPECTATING';
-                    updateFloatingBar();
                 }, 3000);
             }, 2000);
         });
@@ -1639,7 +1594,6 @@
             clearTimeout(window.resultsTimeout);
             
             gameState.gameNumber = data.gameNumber;
-            document.getElementById('floatingBar').classList.remove('active');
             
             const won = data.winners && data.winners.some(w => w.id === socket.id);
             
@@ -1659,6 +1613,8 @@
                 const finalTotalPlayers = data.totalParticipants || gameState.totalPlayers;
                 updateStatsAfterGame(finalPosition, finalTotalPlayers, data.gameNumber);
             }
+            
+            updateShareButton();
             
             let html = '<div class="final-screen">';
             
@@ -1692,16 +1648,7 @@
                 }
             }
             
-            html += `
-                <div class="action-buttons">
-                    <button class="action-btn" onclick="shareResult()">
-                        <i class="fas fa-share-alt"></i> Share
-                    </button>
-                    <button class="action-btn" onclick="returnToLobby()">
-                        See you tomorrow!
-                    </button>
-                </div>
-            </div>`;
+            html += '</div>';
             
             document.getElementById('gameArea').innerHTML = html;
             document.getElementById('statusBadge').className = 'status-badge';
@@ -1745,7 +1692,7 @@
             }
             
             navigator.clipboard.writeText(text).then(() => {
-                const shareBtn = event.target.closest('.action-btn');
+                const shareBtn = document.getElementById('shareBtn');
                 if (shareBtn) {
                     const originalHTML = shareBtn.innerHTML;
                     shareBtn.innerHTML = '<i class="fas fa-check"></i> Copied!';
@@ -1767,7 +1714,6 @@
             gameState.status = 'waiting';
             
             document.getElementById('statusBadge').className = 'status-badge';
-            document.getElementById('floatingBar').classList.remove('active');
             
             const gameInfoHeader = document.getElementById('gameInfoHeader');
             const countDisplay = document.getElementById('playerCountDisplay');
