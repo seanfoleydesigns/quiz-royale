@@ -7,6 +7,9 @@ const fs = require('fs');
 const path = require('path');
 const cron = require('node-cron');
 
+// Serve static files from public folder
+app.use(express.static('public'));
+
 // Serve the HTML file
 app.get('/', (req, res) => {
     res.sendFile(__dirname + '/index.html');
@@ -737,7 +740,7 @@ function sleep(ms) {
 const PORT = process.env.PORT || 3000;
 http.listen(PORT, async () => {
     console.log(`Game running at http://localhost:${PORT}`);
-    console.log(`Today is Quiz Royale #${getGameNumber()}`);
+    console.log(`Today is Triviarena #${getGameNumber()}`);
     console.log(`Test mode: ${TEST_MODE ? 'ENABLED' : 'DISABLED'}`);
     
     if (TEST_MODE) {
@@ -753,4 +756,3 @@ http.listen(PORT, async () => {
     // Setup robust daily scheduling with node-cron
     setupDailySchedule();
 });
-
