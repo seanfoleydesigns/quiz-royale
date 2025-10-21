@@ -1841,6 +1841,12 @@
             gameState.status = 'finished';
             updateLeaveButton();
             
+            // Hide player count display since game is over
+            const gameInfoHeader = document.getElementById('gameInfoHeader');
+            const countDisplay = document.getElementById('playerCountDisplay');
+            if (gameInfoHeader) gameInfoHeader.style.display = 'none';
+            if (countDisplay) countDisplay.style.display = 'none';
+            
             const won = data.winners && data.winners.some(w => w.id === socket.id);
             
             if (won) {
