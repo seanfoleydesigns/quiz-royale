@@ -109,18 +109,6 @@
             font-size: 0.875rem;
         }
         
-        .quiz-number {
-            color: #6366F1;
-            font-weight: 600;
-        }
-        
-        .info-separator {
-            width: 4px;
-            height: 4px;
-            background: #CBD5E1;
-            border-radius: 50%;
-        }
-        
         .player-count {
             color: #64748B;
         }
@@ -201,7 +189,7 @@
         .tomorrow-message {
             font-size: 0.875rem;
             color: #94A3B8;
-            margin-top: 20px;
+            margin-top: 24px;
         }
         
         /* Status Badge */
@@ -964,7 +952,7 @@
                 <div class="logo">Quiz Royale <span class="game-number" id="headerGameNumber">#-</span></div>
                 <div class="header-buttons">
                     <button class="header-btn" onclick="openTutorial()">
-                        <i class="fas fa-question-circle"></i> Tutorial
+                        <i class="fas fa-question-circle"></i> How to Play
                     </button>
                     <button class="header-btn" onclick="openStats()">
                         <i class="fas fa-chart-bar"></i> Stats
@@ -974,8 +962,6 @@
                     </button>
                 </div>
                 <div class="game-info" id="gameInfoHeader" style="display: none;">
-                    <span class="quiz-number" id="lobbyQuizNumber">Quiz #<span id="lobbyGameNumber">-</span></span>
-                    <span class="info-separator" id="infoSeparator" style="display: none;"></span>
                     <span class="player-count" id="playerCountDisplay" style="display: none;">
                         <strong id="playerCount">0</strong> <span id="playerCountLabel">remaining</span>
                     </span>
@@ -1200,9 +1186,6 @@
                             out of ${gameState.todayResult.totalPlayers} players<br>
                             Better than ${percentile}% • ${gameState.todayResult.questionsCorrect} questions correct
                         </div>
-                        <button class="action-btn" onclick="shareResult()">
-                            <i class="fas fa-share-alt"></i> Share Result
-                        </button>
                         <div class="tomorrow-message">See you tomorrow at 8pm EST!</div>
                     </div>
                 `;
@@ -1268,10 +1251,8 @@
             if (gameState.status === 'waiting') {
                 const gameInfoHeader = document.getElementById('gameInfoHeader');
                 const countDisplay = document.getElementById('playerCountDisplay');
-                const separator = document.getElementById('infoSeparator');
                 if (gameInfoHeader) gameInfoHeader.style.display = 'none';
                 if (countDisplay) countDisplay.style.display = 'none';
-                if (separator) separator.style.display = 'none';
                 showLobbyScreen();
             }
             
@@ -1282,24 +1263,20 @@
             console.log('Received game number:', number);
             gameState.gameNumber = number;
             document.getElementById('headerGameNumber').textContent = `#${number}`;
-            document.getElementById('lobbyGameNumber').textContent = number;
         });
         
         socket.on('playerCount', (count) => {
             document.getElementById('playerCount').textContent = count;
             const gameInfoHeader = document.getElementById('gameInfoHeader');
             const countDisplay = document.getElementById('playerCountDisplay');
-            const separator = document.getElementById('infoSeparator');
             const label = document.getElementById('playerCountLabel');
             
             if (gameState.status === 'waiting') {
                 if (gameInfoHeader) gameInfoHeader.style.display = 'none';
                 if (countDisplay) countDisplay.style.display = 'none';
-                if (separator) separator.style.display = 'none';
             } else {
                 if (gameInfoHeader) gameInfoHeader.style.display = 'flex';
                 if (countDisplay) countDisplay.style.display = 'inline';
-                if (separator) separator.style.display = 'inline-block';
                 if (label) label.textContent = 'remaining';
             }
         });
@@ -1308,12 +1285,10 @@
             document.getElementById('playerCount').textContent = count;
             const gameInfoHeader = document.getElementById('gameInfoHeader');
             const countDisplay = document.getElementById('playerCountDisplay');
-            const separator = document.getElementById('infoSeparator');
             const label = document.getElementById('playerCountLabel');
             
             if (gameInfoHeader) gameInfoHeader.style.display = 'flex';
             if (countDisplay) countDisplay.style.display = 'inline';
-            if (separator) separator.style.display = 'inline-block';
             if (label) label.textContent = 'remaining';
         });
         
@@ -1334,11 +1309,9 @@
             
             const gameInfoHeader = document.getElementById('gameInfoHeader');
             const countDisplay = document.getElementById('playerCountDisplay');
-            const separator = document.getElementById('infoSeparator');
             const label = document.getElementById('playerCountLabel');
             if (gameInfoHeader) gameInfoHeader.style.display = 'flex';
             if (countDisplay) countDisplay.style.display = 'inline';
-            if (separator) separator.style.display = 'inline-block';
             if (label) label.textContent = 'remaining';
         });
         
@@ -1348,10 +1321,8 @@
             
             const gameInfoHeader = document.getElementById('gameInfoHeader');
             const countDisplay = document.getElementById('playerCountDisplay');
-            const separator = document.getElementById('infoSeparator');
             if (gameInfoHeader) gameInfoHeader.style.display = 'flex';
             if (countDisplay) countDisplay.style.display = 'inline';
-            if (separator) separator.style.display = 'inline-block';
             
             document.getElementById('gameArea').innerHTML = 
                 `<div class="countdown">${count}</div>`;
@@ -1364,10 +1335,8 @@
             
             const gameInfoHeader = document.getElementById('gameInfoHeader');
             const countDisplay = document.getElementById('playerCountDisplay');
-            const separator = document.getElementById('infoSeparator');
             if (gameInfoHeader) gameInfoHeader.style.display = 'flex';
             if (countDisplay) countDisplay.style.display = 'inline';
-            if (separator) separator.style.display = 'inline-block';
             
             let difficultyClass = 'difficulty-easy';
             if (data.difficulty === 'MEDIUM') difficultyClass = 'difficulty-medium';
@@ -1648,7 +1617,13 @@
                 }
             }
             
-            html += '</div>';
+            html += `
+                <div class="action-buttons">
+                    <button class="action-btn" onclick="returnToLobby()">
+                        <i class="fas fa-home"></i> Return to Lobby
+                    </button>
+                </div>
+            </div>`;
             
             document.getElementById('gameArea').innerHTML = html;
             document.getElementById('statusBadge').className = 'status-badge';
@@ -1717,14 +1692,11 @@
             
             const gameInfoHeader = document.getElementById('gameInfoHeader');
             const countDisplay = document.getElementById('playerCountDisplay');
-            const separator = document.getElementById('infoSeparator');
             if (gameInfoHeader) gameInfoHeader.style.display = 'none';
             if (countDisplay) countDisplay.style.display = 'none';
-            if (separator) separator.style.display = 'none';
             
             showLobbyScreen();
         }
     </script>
 </body>
 </html>
-
