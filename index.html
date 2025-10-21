@@ -963,7 +963,7 @@
                 </div>
                 <div class="game-info" id="gameInfoHeader" style="display: none;">
                     <span class="player-count" id="playerCountDisplay" style="display: none;">
-                        <strong id="playerCount">0</strong> <span id="playerCountLabel">remaining</span>
+                        <strong id="playerCount">0</strong> <span id="playerCountLabel">players remaining</span>
                     </span>
                 </div>
             </div>
@@ -999,6 +999,10 @@
                     <i class="fas fa-calendar-day"></i>
                     <span>One game daily at 8pm EST - play once per day!</span>
                 </li>
+                <li>
+                    <i class="fas fa-exclamation-triangle"></i>
+                    <span>Stay on this page during the game - refreshing will eliminate you!</span>
+                </li>
             </ul>
             <button class="modal-button" onclick="closeModal('tutorialModal')">Got it!</button>
         </div>
@@ -1032,6 +1036,7 @@
     </div>
 
     <script src="/socket.io/socket.io.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <script>
         const socket = io();
         let gameState = {
@@ -1127,6 +1132,44 @@
                 closeModal('statsModal');
             }
         });
+        
+        // Confetti celebration for winners
+        function celebrate() {
+            const duration = 3000;
+            const end = Date.now() + duration;
+
+            (function frame() {
+                confetti({
+                    particleCount: 3,
+                    angle: 60,
+                    spread: 55,
+                    origin: { x: 0 },
+                    colors: ['#6366F1', '#EC4899', '#F59E0B', '#10B981']
+                });
+                confetti({
+                    particleCount: 3,
+                    angle: 120,
+                    spread: 55,
+                    origin: { x: 1 },
+                    colors: ['#6366F1', '#EC4899', '#F59E0B', '#10B981']
+                });
+
+                if (Date.now() < end) {
+                    requestAnimationFrame(frame);
+                }
+            }());
+        }
+        
+        // Clean category names
+        function cleanCategory(category) {
+            if (!category) return '';
+            return category
+                .replace(/_/g, ' ')
+                .toLowerCase()
+                .split(' ')
+                .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+                .join(' ');
+        }
         
         function getPlayerId() {
             let playerId = localStorage.getItem('quizRoyalePlayerId');
@@ -1285,7 +1328,7 @@
             } else {
                 if (gameInfoHeader) gameInfoHeader.style.display = 'flex';
                 if (countDisplay) countDisplay.style.display = 'inline';
-                if (label) label.textContent = 'remaining';
+                if (label) label.textContent = 'players remaining';
             }
         });
         
@@ -1297,7 +1340,7 @@
             
             if (gameInfoHeader) gameInfoHeader.style.display = 'flex';
             if (countDisplay) countDisplay.style.display = 'inline';
-            if (label) label.textContent = 'remaining';
+            if (label) label.textContent = 'players remaining';
         });
         
         socket.on('waitingCount', (count) => {
@@ -1320,7 +1363,7 @@
             const label = document.getElementById('playerCountLabel');
             if (gameInfoHeader) gameInfoHeader.style.display = 'flex';
             if (countDisplay) countDisplay.style.display = 'inline';
-            if (label) label.textContent = 'remaining';
+            if (label) label.textContent = 'players remaining';
         });
         
         socket.on('countdown', (count) => {
@@ -1367,7 +1410,7 @@
             `;
             
             if (data.category) {
-                html += `<div class="question-category">${data.category}</div>`;
+                html += `<div class="question-category">${cleanCategory(data.category)}</div>`;
             }
             
             html += `
@@ -1598,6 +1641,9 @@
                 gameState.position = 1;
                 gameState.totalPlayers = data.totalParticipants || gameState.totalPlayers;
                 
+                // Trigger confetti for winners!
+                celebrate();
+                
                 html += '<div class="final-title" style="color: #059669;"><i class="fas fa-trophy"></i> WINNER!</div>';
                 html += '<div class="position-number" style="color: #059669;">#1</div>';
                 html += `<div class="position-context">Last player standing after ${gameState.questionsCorrect || 0} questions!</div>`;
@@ -1619,7 +1665,8 @@
                     html += `<div class="position-context">Winner: Anonymous</div>`;
                     html += '<div class="position-context">Thanks for watching!</div>';
                 } else {
-                    html += '<div class="position-context">No winners this round!</div>';
+                    html += '<div class="position-context" style="font-size: 1.125rem; margin: 24px 0;">Everyone was eliminated!</div>';
+                    html += '<div class="position-context">No winners this round.</div>';
                 }
             }
             
