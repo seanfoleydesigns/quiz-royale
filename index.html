@@ -1,8 +1,24 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Quiz Royale</title>
+    <title>Triviarena - Daily Trivia Battle Royale</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    
+    <!-- Favicons -->
+    <link rel="icon" type="image/png" href="/favicon.png">
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+    
+    <!-- Open Graph / Social Media -->
+    <meta property="og:title" content="Triviarena - Daily Trivia Battle Royale">
+    <meta property="og:description" content="Answer 10 trivia questions, outlast other players, claim victory! One game daily at 8pm EST.">
+    <meta property="og:image" content="https://triviarena.io/og-image.png">
+    <meta property="og:url" content="https://triviarena.io">
+    <meta property="og:type" content="website">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Triviarena - Daily Trivia Battle Royale">
+    <meta name="twitter:description" content="Answer 10 trivia questions, outlast other players, claim victory! One game daily at 8pm EST.">
+    <meta name="twitter:image" content="https://triviarena.io/og-image.png">
+    
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
@@ -49,6 +65,15 @@
             margin-bottom: 8px;
             letter-spacing: -0.5px;
             color: #1E293B;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+        }
+        
+        .logo img {
+            height: 40px;
+            width: auto;
         }
         
         .logo .game-number {
@@ -859,6 +884,10 @@
                 margin-bottom: 4px;
             }
             
+            .logo img {
+                height: 32px;
+            }
+            
             .question-meta {
                 margin-bottom: 16px;
                 padding-bottom: 12px;
@@ -946,7 +975,10 @@
         <div class="status-badge" id="statusBadge"></div>
         <div class="game-box">
             <div class="header">
-                <div class="logo">Quiz Royale <span class="game-number" id="headerGameNumber">#-</span></div>
+                <div class="logo">
+                    <img src="/logo.svg" alt="Triviarena">
+                    <span>Triviarena <span class="game-number" id="headerGameNumber">#-</span></span>
+                </div>
                 <div class="header-buttons">
                     <button class="header-btn" onclick="openTutorial()">
                         <i class="fas fa-question-circle"></i> Tutorial
@@ -1066,12 +1098,12 @@
                 streakDates: []
             };
             
-            const saved = localStorage.getItem('quizRoyaleStats');
+            const saved = localStorage.getItem('triviarenaStats');
             return saved ? { ...defaultStats, ...JSON.parse(saved) } : defaultStats;
         }
         
         function saveStats(stats) {
-            localStorage.setItem('quizRoyaleStats', JSON.stringify(stats));
+            localStorage.setItem('triviarenaStats', JSON.stringify(stats));
         }
         
         function updateStatsAfterGame(position, totalPlayers, gameNumber) {
@@ -1172,10 +1204,10 @@
         }
         
         function getPlayerId() {
-            let playerId = localStorage.getItem('quizRoyalePlayerId');
+            let playerId = localStorage.getItem('triviarenaPlayerId');
             if (!playerId) {
                 playerId = Math.random().toString(36).substring(2) + Date.now().toString(36);
-                localStorage.setItem('quizRoyalePlayerId', playerId);
+                localStorage.setItem('triviarenaPlayerId', playerId);
             }
             return playerId;
         }
@@ -1578,7 +1610,7 @@
                             }
                         }, 1000);
                     }
-                }, 4000); // Changed from 2000 to 4000
+                }, 4000);
             }, 2000);
         });
         
@@ -1710,14 +1742,14 @@
             const result = gameState.todayResult;
             
             if (!result) {
-                text = `Quiz Royale #${gameState.gameNumber}\nJoin the daily battle royale trivia!\nPlay at: ${window.location.origin}`;
+                text = `Triviarena #${gameState.gameNumber}\nJoin the daily battle royale trivia!\nPlay at: ${window.location.origin}`;
             } else if (result.position === 1) {
                 let squares = '';
                 for (let i = 0; i < 10; i++) {
                     squares += i < result.questionsCorrect ? '🟩' : '⬜';
                 }
                 
-                text = `Quiz Royale #${result.gameNumber || gameState.gameNumber}\n🏆 WINNER! 🏆\nOutlasted ${result.totalPlayers - 1} player${result.totalPlayers - 1 !== 1 ? 's' : ''} in ${result.questionsCorrect} questions!\n\n${squares}\n\nPlay at: ${window.location.origin}`;
+                text = `Triviarena #${result.gameNumber || gameState.gameNumber}\n🏆 WINNER! 🏆\nOutlasted ${result.totalPlayers - 1} player${result.totalPlayers - 1 !== 1 ? 's' : ''} in ${result.questionsCorrect} questions!\n\n${squares}\n\nPlay at: ${window.location.origin}`;
             } else {
                 const playersBeaten = result.totalPlayers - result.position;
                 const percentile = result.totalPlayers > 1 ? 
@@ -1734,7 +1766,7 @@
                     }
                 }
                 
-                text = `Quiz Royale #${result.gameNumber || gameState.gameNumber}\n#${result.position}/${result.totalPlayers} (Better than ${percentile}%)\n\n${squares}\n\nPlay at: ${window.location.origin}`;
+                text = `Triviarena #${result.gameNumber || gameState.gameNumber}\n#${result.position}/${result.totalPlayers} (Better than ${percentile}%)\n\n${squares}\n\nPlay at: ${window.location.origin}`;
             }
             
             navigator.clipboard.writeText(text).then(() => {
