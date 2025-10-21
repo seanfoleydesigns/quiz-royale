@@ -13,7 +13,7 @@ app.get('/', (req, res) => {
 });
 
 // Test mode toggle (set to false for production)
-const TEST_MODE = true; // Keep false for production
+const TEST_MODE = false; // Keep false for production
 
 // Force start endpoint for testing (remove for production)
 if (TEST_MODE) {
@@ -623,10 +623,10 @@ function processAnswers() {
     // Check if game should end
     if (gameState.currentQuestion >= 9 || alivePlayers.length <= 1) {
         console.log(`Game ending - Question: ${gameState.currentQuestion + 1}/10, Players remaining: ${alivePlayers.length}`);
-        setTimeout(() => endGame(), 7000);
+        setTimeout(() => endGame(), 9000); // 9 seconds between questions
     } else {
         gameState.currentQuestion++;
-        setTimeout(() => nextQuestion(), 7000);
+        setTimeout(() => nextQuestion(), 9000); // 9 seconds between questions
     }
 }
 
@@ -750,15 +750,3 @@ http.listen(PORT, async () => {
     // Setup robust daily scheduling with node-cron
     setupDailySchedule();
 });
-
-
-
-
-
-
-
-
-
-
-
-
