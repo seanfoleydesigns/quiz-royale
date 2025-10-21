@@ -197,7 +197,7 @@
         /* Status Badge */
         .status-badge {
             position: absolute;
-            top: -12px;
+            top: 16px;
             left: 50%;
             transform: translateX(-50%);
             background: #EF4444;
@@ -1233,7 +1233,8 @@
         function updateLeaveButton() {
             const leaveBtn = document.getElementById('leaveBtn');
             if (leaveBtn) {
-                leaveBtn.style.display = gameState.isSpectating ? 'flex' : 'none';
+                // Show leave button only when spectating AND game is still playing (not finished)
+                leaveBtn.style.display = (gameState.isSpectating && gameState.status !== 'finished') ? 'flex' : 'none';
             }
         }
         
@@ -1566,6 +1567,8 @@
             clearTimeout(window.resultsTimeout);
             
             gameState.gameNumber = data.gameNumber;
+            gameState.status = 'finished';
+            updateLeaveButton();
             
             const won = data.winners && data.winners.some(w => w.id === socket.id);
             
