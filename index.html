@@ -27,6 +27,7 @@
         .container {
             width: 100%;
             max-width: 400px;
+            position: relative;
         }
         
         .game-box {
@@ -60,6 +61,7 @@
             justify-content: center;
             margin-top: 12px;
             margin-bottom: 16px;
+            flex-wrap: wrap;
         }
         
         .header-btn {
@@ -194,11 +196,11 @@
         
         /* Status Badge */
         .status-badge {
-            position: fixed;
-            top: 10px;
+            position: absolute;
+            top: -12px;
             left: 50%;
             transform: translateX(-50%);
-            background: #64748B;
+            background: #EF4444;
             color: white;
             padding: 6px 16px;
             border-radius: 20px;
@@ -207,16 +209,11 @@
             text-transform: uppercase;
             letter-spacing: 0.5px;
             display: none;
-            z-index: 100;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
-        }
-        
-        .status-badge.spectating {
-            display: block;
+            z-index: 10;
+            box-shadow: 0 2px 8px rgba(239, 68, 68, 0.3);
         }
         
         .status-badge.eliminated {
-            background: #EF4444;
             display: block;
         }
         
@@ -952,13 +949,16 @@
                 <div class="logo">Quiz Royale <span class="game-number" id="headerGameNumber">#-</span></div>
                 <div class="header-buttons">
                     <button class="header-btn" onclick="openTutorial()">
-                        <i class="fas fa-question-circle"></i> How to Play
+                        <i class="fas fa-question-circle"></i> Tutorial
                     </button>
                     <button class="header-btn" onclick="openStats()">
                         <i class="fas fa-chart-bar"></i> Stats
                     </button>
                     <button class="header-btn" id="shareBtn" onclick="shareResult()" disabled>
                         <i class="fas fa-share-alt"></i> Share
+                    </button>
+                    <button class="header-btn" id="leaveBtn" onclick="returnToLobby()" style="display: none;">
+                        <i class="fas fa-sign-out-alt"></i> Leave
                     </button>
                 </div>
                 <div class="game-info" id="gameInfoHeader" style="display: none;">
@@ -1227,6 +1227,13 @@
             const shareBtn = document.getElementById('shareBtn');
             if (shareBtn) {
                 shareBtn.disabled = !gameState.hasPlayedToday;
+            }
+        }
+        
+        function updateLeaveButton() {
+            const leaveBtn = document.getElementById('leaveBtn');
+            if (leaveBtn) {
+                leaveBtn.style.display = gameState.isSpectating ? 'flex' : 'none';
             }
         }
         
@@ -1527,6 +1534,7 @@
             
             updateStatsAfterGame(data.position, data.totalPlayers, data.gameNumber);
             updateShareButton();
+            updateLeaveButton();
             
             const badge = document.getElementById('statusBadge');
             badge.className = 'status-badge eliminated';
@@ -1550,11 +1558,6 @@
                         <div class="countdown-text">Continuing as spectator...</div>
                     </div>
                 `;
-                
-                setTimeout(() => {
-                    badge.className = 'status-badge spectating';
-                    badge.textContent = 'SPECTATING';
-                }, 3000);
             }, 2000);
         });
         
@@ -1689,6 +1692,7 @@
             gameState.status = 'waiting';
             
             document.getElementById('statusBadge').className = 'status-badge';
+            updateLeaveButton();
             
             const gameInfoHeader = document.getElementById('gameInfoHeader');
             const countDisplay = document.getElementById('playerCountDisplay');
