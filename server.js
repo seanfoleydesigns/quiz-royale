@@ -13,7 +13,7 @@ app.get('/', (req, res) => {
 });
 
 // Test mode toggle (set to false for production)
-const TEST_MODE = true; // Keep false for production
+const TEST_MODE = false; // Keep false for production
 
 // Force start endpoint for testing (remove for production)
 if (TEST_MODE) {
@@ -565,24 +565,6 @@ function processAnswers() {
             } else {
                 player.alive = false;
                 eliminated.push(player.id);
-                
-                // Save their result if they have a persistent ID
-                if (player.persistentId) {
-                    const result = {
-                        hasPlayed: true,
-                        result: {
-                            position: alivePlayers.length + eliminated.length, // Tied for worst position in eliminated group
-                            totalPlayers: gameState.totalParticipants,
-                            questionsCorrect: player.correctAnswers,
-                            gameNumber: getGameNumber()
-                        }
-                    };
-                    
-                    todayPlayers.players.set(player.persistentId, result);
-                    player.hasPlayedToday = true;
-                    player.todayResult = result.result;
-                    saveTodayPlayers();
-                }
             }
         }
     });
@@ -590,6 +572,27 @@ function processAnswers() {
     const alivePlayers = Array.from(gameState.players.values()).filter(p => 
         p.alive && !p.leftGame && p.participatedInGame
     );
+    
+    // NOW save results for eliminated players with correct position
+    eliminated.forEach(playerId => {
+        const player = gameState.players.get(playerId);
+        if (player && player.persistentId) {
+            const result = {
+                hasPlayed: true,
+                result: {
+                    position: alivePlayers.length + eliminated.length, // Tied for worst position in eliminated group
+                    totalPlayers: gameState.totalParticipants,
+                    questionsCorrect: player.correctAnswers,
+                    gameNumber: getGameNumber()
+                }
+            };
+            
+            todayPlayers.players.set(player.persistentId, result);
+            player.hasPlayedToday = true;
+            player.todayResult = result.result;
+            saveTodayPlayers();
+        }
+    });
     
     // Send results to all players
     gameState.players.forEach((player, socketId) => {
@@ -750,4 +753,3 @@ http.listen(PORT, async () => {
     // Setup robust daily scheduling with node-cron
     setupDailySchedule();
 });
-
