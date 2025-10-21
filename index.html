@@ -104,6 +104,21 @@
             border-color: #6366F1;
         }
         
+        /* Disable sticky hover on touch devices */
+        @media (hover: none) {
+            .header-btn:hover {
+                background: #F8FAFC;
+                color: #64748B;
+                border-color: #E2E8F0;
+            }
+            
+            .header-btn:active {
+                background: #6366F1;
+                color: white;
+                border-color: #6366F1;
+            }
+        }
+        
         .header-btn:disabled {
             opacity: 0.4;
             cursor: not-allowed;
@@ -1939,17 +1954,7 @@
                     shareBtn.innerHTML = '<i class="fas fa-check"></i> Copied!';
                     setTimeout(() => {
                         shareBtn.innerHTML = originalHTML;
-                        // Disable pointer events briefly to kill hover state
-                        shareBtn.style.pointerEvents = 'none';
                         shareBtn.blur();
-                        // Force style reset
-                        shareBtn.style.background = '';
-                        shareBtn.style.color = '';
-                        shareBtn.style.borderColor = '';
-                        // Re-enable after a tiny delay
-                        setTimeout(() => {
-                            shareBtn.style.pointerEvents = '';
-                        }, 50);
                     }, 2000);
                 }
             }).catch(err => {
