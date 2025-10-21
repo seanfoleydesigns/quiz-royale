@@ -1939,6 +1939,10 @@
                     shareBtn.innerHTML = '<i class="fas fa-check"></i> Copied!';
                     setTimeout(() => {
                         shareBtn.innerHTML = originalHTML;
+                        // Force blur to remove mobile hover state
+                        shareBtn.blur();
+                        // Force style reset
+                        void shareBtn.offsetHeight;
                     }, 2000);
                 }
             }).catch(err => {
