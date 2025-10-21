@@ -645,10 +645,10 @@ function processAnswers() {
     // Check if game should end
     if (gameState.currentQuestion >= 9 || alivePlayers.length <= 1) {
         console.log(`Game ending - Question: ${gameState.currentQuestion + 1}/10, Players remaining: ${alivePlayers.length}`);
-        setTimeout(() => endGame(), 9000); // 9 seconds between questions
+        setTimeout(() => endGame(), 11000); // 11 seconds between questions (4s answer reveal + 4s results + 3s countdown)
     } else {
         gameState.currentQuestion++;
-        setTimeout(() => nextQuestion(), 9000); // 9 seconds between questions
+        setTimeout(() => nextQuestion(), 11000); // 11 seconds between questions (4s answer reveal + 4s results + 3s countdown)
     }
 }
 
