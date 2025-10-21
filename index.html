@@ -365,6 +365,8 @@
             gap: 12px;
             font-family: 'Poppins', sans-serif;
             position: relative;
+            -webkit-tap-highlight-color: transparent;
+            touch-action: manipulation;
         }
         
         .answer-btn .letter {
@@ -1593,7 +1595,20 @@
             
             document.getElementById('gameArea').innerHTML = html;
             
-            document.activeElement.blur();
+            // Aggressively remove focus and clear any lingering mobile touch states
+            if (document.activeElement) {
+                document.activeElement.blur();
+            }
+            
+            // Force a reflow to clear any cached states
+            void document.getElementById('gameArea').offsetHeight;
+            
+            // Remove focus from all buttons as a safety measure
+            setTimeout(() => {
+                document.querySelectorAll('.answer-btn').forEach(btn => {
+                    btn.blur();
+                });
+            }, 0);
             
             setTimeout(() => {
                 const timerBar = document.getElementById('timerBar');
