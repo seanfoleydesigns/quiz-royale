@@ -1497,7 +1497,7 @@
                     <button class="modal-button" style="flex: 1;" onclick="proceedToCreate()">
                         <i class="fas fa-plus-circle"></i> Create Party
                     </button>
-                    <button class="modal-button" style="flex: 1; background: #475569;" onclick="proceedToJoin()">
+                    <button class="modal-button" style="flex: 1; background: white; color: #6366F1; border: 2px solid #6366F1;" onclick="proceedToJoin()">
                         <i class="fas fa-sign-in-alt"></i> Join Party
                     </button>
                 </div>
@@ -1600,7 +1600,7 @@
                 <button class="modal-button" onclick="joinPartyWithName('${displayName}')">
                     <i class="fas fa-sign-in-alt"></i> Join Party
                 </button>
-                <button class="modal-button" style="background: #475569; margin-top: 8px;" onclick="showPartyNameEntry()">
+                <button class="modal-button" style="background: white; color: #6366F1; border: 2px solid #6366F1; margin-top: 8px;" onclick="showPartyNameEntry()">
                     <i class="fas fa-arrow-left"></i> Back
                 </button>
             `;
@@ -1652,7 +1652,7 @@
                 <button class="modal-button" style="margin-top: 16px;" onclick="copyPartyCode('${code}')">
                     <i class="fas fa-copy"></i> Copy Code
                 </button>
-                <button class="modal-button" style="background: #475569; margin-top: 8px;" onclick="closeModal('partyModal')">
+                <button class="modal-button" style="background: white; color: #6366F1; border: 2px solid #6366F1; margin-top: 8px;" onclick="closeModal('partyModal')">
                     Done
                 </button>
             `;
@@ -1677,10 +1677,15 @@
                 const btn = event.target.closest('button');
                 const originalHTML = btn.innerHTML;
                 btn.innerHTML = '<i class="fas fa-check"></i> Copied!';
+                btn.disabled = true;
                 setTimeout(() => {
                     btn.innerHTML = originalHTML;
+                    btn.disabled = false;
                     btn.blur();
                 }, 2000);
+            }).catch(err => {
+                console.error('Failed to copy:', err);
+                alert('Code copied: ' + code);
             });
         }
         
@@ -1701,6 +1706,14 @@
                 } else {
                     partySection.style.display = 'none';
                 }
+            }
+            
+            // Update party button text
+            const partyBtn = document.querySelector('.party-btn');
+            if (partyBtn) {
+                const icon = '<i class="fas fa-users"></i>';
+                const text = gameState.partyCode ? 'Party Settings' : 'Create/Join Party';
+                partyBtn.innerHTML = `${icon} ${text}`;
             }
         }
         
