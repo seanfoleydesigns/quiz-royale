@@ -1475,16 +1475,29 @@
         
         // Party system functions
         function openPartyOptions() {
-            document.getElementById('partyModalTitle').textContent = 'Join or Create Party';
+            if (gameState.partyCode) {
+                // Already in party - show Party Settings
+                showPartySettings();
+            } else {
+                // Not in party - show name entry first
+                showPartyNameEntry();
+            }
+        }
+        
+        function showPartyNameEntry() {
+            document.getElementById('partyModalTitle').textContent = 'Play with Friends';
             document.getElementById('partyModalContent').innerHTML = `
-                <p style="text-align: center; color: #64748B; font-size: 0.875rem; margin-bottom: 20px;">
-                    Play with friends! Create a party or join with a code.
+                <p style="text-align: center; color: #64748B; font-size: 0.875rem; margin-bottom: 16px;">
+                    Enter your display name to continue.
                 </p>
-                <div style="display: flex; flex-direction: column; gap: 12px;">
-                    <button class="modal-button" onclick="showCreateParty()">
+                <input type="text" id="partyDisplayName" placeholder="Your display name" maxlength="20" 
+                    style="width: 100%; padding: 12px; border: 2px solid #E2E8F0; border-radius: 8px; font-family: 'Poppins', sans-serif; font-size: 16px; margin-bottom: 16px;">
+                <div id="partyError" style="color: #DC2626; font-size: 0.875rem; text-align: center; margin-bottom: 12px; display: none;"></div>
+                <div style="display: flex; gap: 10px;">
+                    <button class="modal-button" style="flex: 1;" onclick="proceedToCreate()">
                         <i class="fas fa-plus-circle"></i> Create Party
                     </button>
-                    <button class="modal-button" style="background: #F8FAFC; color: #64748B;" onclick="showJoinParty()">
+                    <button class="modal-button" style="flex: 1; background: #475569;" onclick="proceedToJoin()">
                         <i class="fas fa-sign-in-alt"></i> Join Party
                     </button>
                 </div>
@@ -1493,50 +1506,62 @@
             document.body.classList.add('modal-open');
         }
         
-        function showCreateParty() {
-            document.getElementById('partyModalTitle').textContent = 'Create Party';
+        function showPartySettings() {
+            document.getElementById('partyModalTitle').textContent = 'Party Settings';
+            
+            // Get member list HTML
+            let membersHTML = '';
+            if (gameState.partyMembers && gameState.partyMembers.length > 0) {
+                membersHTML = `
+                    <div style="margin: 20px 0;">
+                        <div style="font-size: 0.875rem; color: #64748B; font-weight: 600; margin-bottom: 12px;">
+                            Party Members (${gameState.partyMembers.length}/5)
+                        </div>
+                        <div style="display: flex; flex-direction: column; gap: 8px;">
+                            ${gameState.partyMembers.map(member => `
+                                <div style="display: flex; align-items: center; gap: 8px; padding: 8px; background: #F8FAFC; border-radius: 6px;">
+                                    <div style="width: 32px; height: 32px; border-radius: 50%; background: ${member.isYou ? '#6366F1' : '#94A3B8'}; display: flex; align-items: center; justify-content: center; color: white; font-weight: 600; font-size: 0.875rem;">
+                                        ${getInitials(member.displayName)}
+                                    </div>
+                                    <div style="flex: 1; font-size: 0.875rem; color: #1E293B;">
+                                        ${member.displayName}${member.isYou ? ' (You)' : ''}
+                                    </div>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                `;
+            }
+            
             document.getElementById('partyModalContent').innerHTML = `
-                <p style="text-align: center; color: #64748B; font-size: 0.875rem; margin-bottom: 16px;">
-                    Enter your display name to create a party.
-                </p>
-                <input type="text" id="createPartyName" placeholder="Your display name" maxlength="20" 
-                    style="width: 100%; padding: 12px; border: 2px solid #E2E8F0; border-radius: 8px; font-family: 'Poppins', sans-serif; font-size: 16px; margin-bottom: 16px;">
-                <div id="partyError" style="color: #DC2626; font-size: 0.875rem; text-align: center; margin-bottom: 12px; display: none;"></div>
-                <button class="modal-button" onclick="createParty()">
-                    Create Party
+                <div class="party-code-display">
+                    <div class="party-code-label">Party Code</div>
+                    <div class="party-code-value">${gameState.partyCode}</div>
+                </div>
+                <button class="modal-button" style="margin-top: 16px;" onclick="copyPartyCode('${gameState.partyCode}')">
+                    <i class="fas fa-copy"></i> Copy Code
                 </button>
-                <button class="modal-button" style="background: #F8FAFC; color: #64748B; margin-top: 8px;" onclick="openPartyOptions()">
-                    <i class="fas fa-arrow-left"></i> Back
+                ${membersHTML}
+                <button class="modal-button" style="background: #DC2626; margin-top: 20px;" onclick="leaveParty()">
+                    <i class="fas fa-sign-out-alt"></i> Leave Party
                 </button>
             `;
+            document.getElementById('partyModal').classList.add('active');
+            document.body.classList.add('modal-open');
         }
         
-        function showJoinParty() {
-            document.getElementById('partyModalTitle').textContent = 'Join Party';
-            document.getElementById('partyModalContent').innerHTML = `
-                <p style="text-align: center; color: #64748B; font-size: 0.875rem; margin-bottom: 16px;">
-                    Enter your display name and party code.
-                </p>
-                <input type="text" id="joinPartyName" placeholder="Your display name" maxlength="20" 
-                    style="width: 100%; padding: 12px; border: 2px solid #E2E8F0; border-radius: 8px; font-family: 'Poppins', sans-serif; font-size: 16px; margin-bottom: 12px;">
-                <input type="text" id="joinPartyCode" placeholder="Party code" maxlength="6" 
-                    style="width: 100%; padding: 12px; border: 2px solid #E2E8F0; border-radius: 8px; font-family: 'Poppins', sans-serif; font-size: 16px; text-transform: uppercase; margin-bottom: 16px;">
-                <div id="partyError" style="color: #DC2626; font-size: 0.875rem; text-align: center; margin-bottom: 12px; display: none;"></div>
-                <button class="modal-button" onclick="joinParty()">
-                    Join Party
-                </button>
-                <button class="modal-button" style="background: #F8FAFC; color: #64748B; margin-top: 8px;" onclick="openPartyOptions()">
-                    <i class="fas fa-arrow-left"></i> Back
-                </button>
-            `;
-        }
-        
-        function createParty() {
-            const displayName = document.getElementById('createPartyName').value.trim();
+        function proceedToCreate() {
+            const displayName = document.getElementById('partyDisplayName').value.trim();
             const errorEl = document.getElementById('partyError');
             
             if (!displayName) {
                 errorEl.textContent = 'Please enter a display name';
+                errorEl.style.display = 'block';
+                return;
+            }
+            
+            if (displayName.length > 20) {
+                errorEl.textContent = 'Display name too long (max 20 chars)';
                 errorEl.style.display = 'block';
                 return;
             }
@@ -1553,9 +1578,8 @@
             });
         }
         
-        function joinParty() {
-            const displayName = document.getElementById('joinPartyName').value.trim();
-            const code = document.getElementById('joinPartyCode').value.trim().toUpperCase();
+        function proceedToJoin() {
+            const displayName = document.getElementById('partyDisplayName').value.trim();
             const errorEl = document.getElementById('partyError');
             
             if (!displayName) {
@@ -1563,6 +1587,28 @@
                 errorEl.style.display = 'block';
                 return;
             }
+            
+            // Show code entry screen
+            document.getElementById('partyModalTitle').textContent = 'Join Party';
+            document.getElementById('partyModalContent').innerHTML = `
+                <p style="text-align: center; color: #64748B; font-size: 0.875rem; margin-bottom: 16px;">
+                    Enter the party code.
+                </p>
+                <input type="text" id="joinPartyCode" placeholder="Party code" maxlength="6" 
+                    style="width: 100%; padding: 12px; border: 2px solid #E2E8F0; border-radius: 8px; font-family: 'Poppins', sans-serif; font-size: 16px; text-transform: uppercase; margin-bottom: 16px;">
+                <div id="partyError" style="color: #DC2626; font-size: 0.875rem; text-align: center; margin-bottom: 12px; display: none;"></div>
+                <button class="modal-button" onclick="joinPartyWithName('${displayName}')">
+                    <i class="fas fa-sign-in-alt"></i> Join Party
+                </button>
+                <button class="modal-button" style="background: #475569; margin-top: 8px;" onclick="showPartyNameEntry()">
+                    <i class="fas fa-arrow-left"></i> Back
+                </button>
+            `;
+        }
+        
+        function joinPartyWithName(displayName) {
+            const code = document.getElementById('joinPartyCode').value.trim().toUpperCase();
+            const errorEl = document.getElementById('partyError');
             
             if (!code) {
                 errorEl.textContent = 'Please enter a party code';
@@ -1582,6 +1628,17 @@
             });
         }
         
+        function leaveParty() {
+            if (confirm('Are you sure you want to leave the party?')) {
+                socket.emit('leaveParty');
+                gameState.partyCode = null;
+                gameState.partyMembers = [];
+                closeModal('partyModal');
+                updateLobbyPartyDisplay();
+                showLobbyScreen();
+            }
+        }
+        
         function showPartyCreated(code) {
             document.getElementById('partyModalTitle').textContent = 'Party Created!';
             document.getElementById('partyModalContent').innerHTML = `
@@ -1592,10 +1649,10 @@
                     <div class="party-code-label">Party Code</div>
                     <div class="party-code-value">${code}</div>
                 </div>
-                <button class="modal-button" onclick="copyPartyCode('${code}')">
+                <button class="modal-button" style="margin-top: 16px;" onclick="copyPartyCode('${code}')">
                     <i class="fas fa-copy"></i> Copy Code
                 </button>
-                <button class="modal-button" style="background: #F8FAFC; color: #64748B; margin-top: 8px;" onclick="closeModal('partyModal')">
+                <button class="modal-button" style="background: #475569; margin-top: 8px;" onclick="closeModal('partyModal')">
                     Done
                 </button>
             `;
@@ -1812,7 +1869,7 @@
                         <div class="party-label">Play with Friends</div>
                         <div class="party-buttons">
                             <button class="party-btn" onclick="openPartyOptions()">
-                                <i class="fas fa-users"></i> ${gameState.partyCode ? 'View Party' : 'Create/Join Party'}
+                                <i class="fas fa-users"></i> ${gameState.partyCode ? 'Party Settings' : 'Create/Join Party'}
                             </button>
                         </div>
                     </div>
