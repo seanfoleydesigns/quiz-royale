@@ -616,6 +616,37 @@ io.on('connection', (socket) => {
         
         callback({ success: true, code: code.toUpperCase(), members: party.members });
     });
+    
+    socket.on('leaveParty', () => {
+        const player = gameState.players.get(socket.id);
+        if (!player || !player.partyCode) {
+            return;
+        }
+        
+        const partyCode = player.partyCode;
+        const party = parties.get(partyCode);
+        
+        if (party) {
+            // Remove player from party
+            party.members = party.members.filter(m => m.socketId !== socket.id);
+            
+            // If party is now empty, delete it
+            if (party.members.length === 0) {
+                parties.delete(partyCode);
+                console.log(`Party ${partyCode} disbanded (empty)`);
+            } else {
+                // Notify remaining members
+                party.members.forEach(member => {
+                    io.to(member.socketId).emit('partyUpdate', { members: party.members });
+                });
+                console.log(`Player left party ${partyCode}, ${party.members.length} members remaining`);
+            }
+        }
+        
+        // Clear player's party data
+        player.partyCode = null;
+        player.partyDisplayName = null;
+    });
 });
 
 // Start the game
@@ -993,4 +1024,3 @@ http.listen(PORT, async () => {
     // Setup robust daily scheduling with node-cron
     setupDailySchedule();
 });
-
