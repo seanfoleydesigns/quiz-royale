@@ -1707,13 +1707,13 @@
         }
         
         function updateLobbyPartyDisplay() {
-            const partySection = document.querySelector('.party-section');
-            if (partySection) {
+            const bubbles = document.querySelector('.party-bubbles');
+            if (bubbles) {
                 if (gameState.partyCode && gameState.partyMembers.length > 0) {
-                    partySection.style.display = 'block';
-                    renderPartyBubbles(partySection.querySelector('.party-bubbles'));
+                    bubbles.style.display = 'flex';
+                    renderPartyBubbles(bubbles);
                 } else {
-                    partySection.style.display = 'none';
+                    bubbles.style.display = 'none';
                 }
             }
             
@@ -1882,13 +1882,9 @@
                         <div class="waiting-count">${gameState.waitingPlayers} ${playerText}</div>
                     </div>
                     
-                    <div class="party-section" style="display: ${gameState.partyCode ? 'block' : 'none'}">
-                        <div class="party-label">Your Party</div>
-                        <div class="party-bubbles"></div>
-                    </div>
-                    
                     <div class="party-section">
                         <div class="party-label">Play with Friends</div>
+                        <div class="party-bubbles" style="display: ${gameState.partyCode ? 'flex' : 'none'}"></div>
                         <div class="party-buttons">
                             <button class="party-btn" onclick="openPartyOptions()">
                                 <i class="fas fa-users"></i> ${gameState.partyCode ? 'Party Settings' : 'Create/Join Party'}
