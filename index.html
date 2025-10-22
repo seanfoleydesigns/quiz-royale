@@ -1490,7 +1490,7 @@
                 <p style="text-align: center; color: #64748B; font-size: 0.875rem; margin-bottom: 16px;">
                     Enter your display name to continue.
                 </p>
-                <input type="text" id="partyDisplayName" placeholder="Your display name" maxlength="20" 
+                <input type="text" id="partyDisplayName" placeholder="Your display name" maxlength="10" 
                     style="width: 100%; padding: 12px; border: 2px solid #E2E8F0; border-radius: 8px; font-family: 'Poppins', sans-serif; font-size: 16px; margin-bottom: 16px;">
                 <div id="partyError" style="color: #DC2626; font-size: 0.875rem; text-align: center; margin-bottom: 12px; display: none;"></div>
                 <div style="display: flex; gap: 10px;">
@@ -1523,7 +1523,7 @@
                                     <div style="width: 32px; height: 32px; border-radius: 50%; background: ${member.isYou ? '#6366F1' : '#94A3B8'}; display: flex; align-items: center; justify-content: center; color: white; font-weight: 600; font-size: 0.875rem;">
                                         ${getInitials(member.displayName)}
                                     </div>
-                                    <div style="flex: 1; font-size: 0.875rem; color: #1E293B;">
+                                    <div style="flex: 1; font-size: 0.875rem; color: #1E293B; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
                                         ${member.displayName}${member.isYou ? ' (You)' : ''}
                                     </div>
                                 </div>
@@ -1560,8 +1560,8 @@
                 return;
             }
             
-            if (displayName.length > 20) {
-                errorEl.textContent = 'Display name too long (max 20 chars)';
+            if (displayName.length > 10) {
+                errorEl.textContent = 'Display name too long (max 10 chars)';
                 errorEl.style.display = 'block';
                 return;
             }
