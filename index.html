@@ -38,12 +38,14 @@
             justify-content: center;
             padding: 20px;
             padding-bottom: env(safe-area-inset-bottom, 20px);
+            overflow-x: hidden;
         }
         
         .container {
             width: 100%;
             max-width: 400px;
             position: relative;
+            overflow-x: hidden;
         }
         
         .game-box {
@@ -51,6 +53,7 @@
             border-radius: 16px;
             padding: 32px 28px;
             position: relative;
+            overflow-x: hidden;
         }
         
         /* Header */
@@ -240,8 +243,9 @@
             align-items: flex-start;
             margin: 16px 0;
             flex-wrap: wrap;
-            overflow-x: auto;
+            overflow-x: hidden;
             padding: 4px 0;
+            max-width: 100%;
         }
         
         .party-bubble {
@@ -1159,6 +1163,16 @@
                 width: 16px;
                 height: 16px;
                 font-size: 0.625rem;
+            }
+            
+            .bubble-name {
+                font-size: 0.625rem;
+                max-width: 50px;
+            }
+            
+            .game-party-bubbles {
+                margin: 12px -4px 16px -4px;
+                gap: 6px;
             }
             
             .question-meta {
