@@ -16,7 +16,7 @@
     <meta property="og:type" content="website">
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="Triviarena - Daily Trivia Battle Royale">
-    <meta property="og:description" content="Answer 10 trivia questions, outlast other players, claim victory! One game daily at 8pm EST.">
+    <meta name="twitter:description" content="Answer 10 trivia questions, outlast other players, claim victory! One game daily at 8pm EST.">
     <meta name="twitter:image" content="https://triviarena.io/og-image.png">
     
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -210,41 +210,38 @@
         
         .party-buttons {
             display: flex;
-            flex-direction: column;
-            gap: 10px;
+            gap: 12px;
+            justify-content: center;
         }
         
         .party-btn {
-            background: #6366F1;
-            color: white;
-            border: none;
-            padding: 12px 20px;
+            background: #F8FAFC;
+            border: 2px solid #E2E8F0;
+            color: #64748B;
+            padding: 10px 20px;
             border-radius: 8px;
-            font-size: 0.9375rem;
+            font-size: 0.875rem;
             font-weight: 600;
             cursor: pointer;
             transition: all 0.15s ease;
             font-family: 'Poppins', sans-serif;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
         }
         
         .party-btn:hover {
-            background: #4F46E5;
-        }
-        
-        .party-btn i {
-            font-size: 1rem;
+            background: #6366F1;
+            color: white;
+            border-color: #6366F1;
         }
         
         .party-bubbles {
             display: flex;
-            justify-content: center;
-            flex-wrap: wrap;
             gap: 12px;
-            margin: 16px 0 20px 0;
+            justify-content: center;
+            align-items: flex-start;
+            margin: 16px 0;
+            flex-wrap: wrap;
+            padding: 4px 0;
+            width: 100%;
         }
         
         .party-bubble {
@@ -452,34 +449,50 @@
         
         .difficulty-medium {
             background: #FEF3C7;
-            color: #D97706;
+            color: #B45309;
         }
         
         .difficulty-hard {
             background: #FEE2E2;
-            color: #DC2626;
+            color: #B91C1C;
         }
         
-        .timer-display {
-            font-size: 1.125rem;
-            font-weight: 700;
-            color: #1E293B;
-            font-variant-numeric: tabular-nums;
+        .timer-wrapper {
             margin-left: auto;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            background: #F8FAFC;
+            padding: 6px 12px;
+            border-radius: 8px;
         }
         
-        .timer-display.low {
-            color: #DC2626;
-            animation: pulse 0.5s infinite;
+        .timer-icon {
+            width: 16px;
+            height: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
         
-        @keyframes pulse {
-            0%, 100% {
-                opacity: 1;
-            }
-            50% {
-                opacity: 0.6;
-            }
+        .timer-icon svg {
+            width: 100%;
+            height: 100%;
+            fill: #94A3B8;
+        }
+        
+        .timer {
+            font-size: 1.125rem;
+            font-weight: 600;
+            font-variant-numeric: tabular-nums;
+            color: #334155;
+        }
+        
+        .question-text {
+            font-size: 1.125rem;
+            line-height: 1.6;
+            margin: 24px 0 32px 0;
+            min-height: 60px;
         }
         
         .question-category {
@@ -685,109 +698,105 @@
             margin: 32px 0;
             position: relative;
             display: inline-block;
-        }
-        
-        .remaining-label {
-            font-size: 0.875rem;
-            color: #94A3B8;
-            margin-bottom: 8px;
+            min-height: 120px;
         }
         
         .remaining-number {
-            font-size: 4rem;
+            font-size: 4.5rem;
             font-weight: 700;
-            color: #6366F1;
             line-height: 1;
+            margin-bottom: 12px;
+            font-variant-numeric: tabular-nums;
+            color: #1E293B;
+        }
+        
+        .remaining-label {
+            font-size: 1rem;
+            color: #64748B;
+            font-weight: 500;
         }
         
         .elimination-bubble {
             position: absolute;
-            right: -40px;
-            top: 50%;
-            transform: translateY(-50%);
-            background: #DC2626;
-            color: white;
+            top: 0;
+            right: -35px;
+            background: #FEE2E2;
+            color: #DC2626;
             padding: 6px 14px;
             border-radius: 20px;
             font-size: 0.875rem;
             font-weight: 600;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            white-space: nowrap;
-            box-shadow: 0 2px 8px rgba(220, 38, 38, 0.3);
+            animation: bubbleFadeIn 0.4s ease-out forwards;
         }
         
-        .elimination-bubble i {
-            font-size: 0.75rem;
+        @keyframes bubbleFadeIn {
+            from {
+                opacity: 0;
+                transform: scale(0.8) translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1) translateY(0);
+            }
         }
         
         .countdown-text {
-            font-size: 0.875rem;
             color: #94A3B8;
-            margin-top: 16px;
-        }
-        
-        .percentile {
             font-size: 0.875rem;
-            color: #6366F1;
-            font-weight: 600;
+            margin-top: 20px;
+            min-height: 24px;
         }
         
-        /* Final screen */
+        /* Final Position Screen */
         .final-screen {
             text-align: center;
             padding: 24px 0;
         }
         
         .final-title {
-            font-size: 1.5rem;
-            font-weight: 700;
-            color: #1E293B;
-            margin-bottom: 24px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 12px;
-        }
-        
-        .final-title i {
-            font-size: 1.75rem;
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 32px;
         }
         
         .position-number {
-            font-size: 5rem;
+            font-size: 4rem;
             font-weight: 700;
             line-height: 1;
-            color: #1E293B;
-            margin-bottom: 12px;
+            margin: 24px 0;
         }
         
         .position-context {
-            font-size: 0.9375rem;
-            color: #64748B;
+            color: #666;
+            font-size: 0.875rem;
             margin-bottom: 8px;
         }
         
+        .percentile {
+            font-size: 1.125rem;
+            font-weight: 600;
+            margin: 16px 0;
+        }
+        
         .action-buttons {
+            display: flex;
+            gap: 12px;
             margin-top: 32px;
+            justify-content: center;
+            flex-wrap: wrap;
         }
         
         .action-btn {
-            background: transparent;
-            color: #6366F1;
-            border: 2px solid #E2E8F0;
             padding: 12px 24px;
             border-radius: 8px;
-            font-size: 0.9375rem;
+            font-size: 0.875rem;
             font-weight: 600;
             cursor: pointer;
+            border: 2px solid #E0E0E0;
+            background: white;
             transition: all 0.15s ease;
             font-family: 'Poppins', sans-serif;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
+            color: #1E293B;
         }
         
         .action-btn:hover {
@@ -1022,27 +1031,6 @@
             background: #4F46E5;
         }
         
-        /* Secondary modal button - with border for better visibility */
-        .modal-button-secondary {
-            width: 100%;
-            background: #F8FAFC;
-            color: #64748B;
-            border: 1px solid #E2E8F0;
-            padding: 14px;
-            border-radius: 8px;
-            font-size: 0.9375rem;
-            font-weight: 600;
-            cursor: pointer;
-            margin-top: 8px;
-            transition: all 0.15s ease;
-            font-family: 'Poppins', sans-serif;
-        }
-        
-        .modal-button-secondary:hover {
-            background: #E2E8F0;
-            border-color: #CBD5E1;
-        }
-        
         /* Stats Modal */
         .stats-grid {
             display: flex;
@@ -1078,38 +1066,6 @@
         .stat-icon {
             font-size: 1.5rem;
             margin-bottom: 8px;
-        }
-        
-        /* Party Settings Members List */
-        .party-members-list {
-            margin: 20px 0;
-            padding: 16px;
-            background: #F8FAFC;
-            border-radius: 8px;
-            border: 1px solid #E2E8F0;
-        }
-        
-        .party-members-title {
-            font-size: 0.75rem;
-            color: #64748B;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            margin-bottom: 12px;
-        }
-        
-        .party-member-item {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            padding: 8px 0;
-            font-size: 0.875rem;
-            color: #334155;
-        }
-        
-        .party-member-item i {
-            color: #6366F1;
-            font-size: 0.75rem;
         }
         
         /* Mobile adjustments */
@@ -1165,14 +1121,10 @@
                 min-width: 18px;
             }
             
-            .modal-button, .modal-button-secondary {
+            .modal-button {
                 padding: 12px;
                 font-size: 0.875rem;
                 margin-top: 20px;
-            }
-            
-            .modal-button-secondary {
-                margin-top: 8px;
             }
             
             .stats-grid {
@@ -1347,11 +1299,11 @@
                     </span>
                 </div>
             </div>
+            
             <div id="gameArea"></div>
         </div>
     </div>
     
-    <!-- Tutorial Modal -->
     <div class="modal-overlay" id="tutorialModal" onclick="closeModal('tutorialModal')">
         <div class="modal-content" onclick="event.stopPropagation()">
             <button class="modal-close" onclick="closeModal('tutorialModal')">
@@ -1360,31 +1312,34 @@
             <h2 class="modal-title">How to Play</h2>
             <ul class="tutorial-list">
                 <li>
-                    <i class="fas fa-calendar"></i>
-                    <span>One trivia battle royale game daily at <strong>8pm EST</strong></span>
-                </li>
-                <li>
                     <i class="fas fa-question-circle"></i>
-                    <span>Answer <strong>10 multiple choice questions</strong></span>
+                    <span>Answer 10 trivia questions with increasing difficulty</span>
                 </li>
                 <li>
                     <i class="fas fa-clock"></i>
-                    <span><strong>15 seconds</strong> to answer each question</span>
+                    <span>You have 15 seconds to answer each question</span>
                 </li>
                 <li>
                     <i class="fas fa-times-circle"></i>
-                    <span>Get a question wrong or time out? <strong>You're eliminated</strong></span>
+                    <span>Wrong answer or timeout = eliminated from the game</span>
                 </li>
                 <li>
                     <i class="fas fa-trophy"></i>
-                    <span><strong>Last player standing wins!</strong> Can you outlast them all?</span>
+                    <span>Win by being the last player standing OR completing all 10 questions</span>
+                </li>
+                <li>
+                    <i class="fas fa-calendar-day"></i>
+                    <span>One game daily at 8pm EST - play once per day!</span>
+                </li>
+                <li>
+                    <i class="fas fa-exclamation-triangle"></i>
+                    <span>Stay on this page during the game - refreshing will eliminate you!</span>
                 </li>
             </ul>
             <button class="modal-button" onclick="closeModal('tutorialModal')">Got it!</button>
         </div>
     </div>
     
-    <!-- Stats Modal -->
     <div class="modal-overlay" id="statsModal" onclick="closeModal('statsModal')">
         <div class="modal-content" onclick="event.stopPropagation()">
             <button class="modal-close" onclick="closeModal('statsModal')">
@@ -1412,7 +1367,6 @@
         </div>
     </div>
     
-    <!-- Party Modal -->
     <div class="modal-overlay" id="partyModal" onclick="closeModal('partyModal')">
         <div class="modal-content" onclick="event.stopPropagation()">
             <button class="modal-close" onclick="closeModal('partyModal')">
@@ -1521,25 +1475,64 @@
         
         // Party system functions
         function openPartyOptions() {
-            // Name-first flow: ask for name, then show create/join options
-            document.getElementById('partyModalTitle').textContent = 'Play with Friends';
+            document.getElementById('partyModalTitle').textContent = 'Join or Create Party';
             document.getElementById('partyModalContent').innerHTML = `
-                <p style="text-align: center; color: #64748B; font-size: 0.875rem; margin-bottom: 16px;">
-                    Enter your display name to get started
+                <p style="text-align: center; color: #64748B; font-size: 0.875rem; margin-bottom: 20px;">
+                    Play with friends! Create a party or join with a code.
                 </p>
-                <input type="text" id="partyDisplayName" placeholder="Your display name" maxlength="20" 
-                    style="width: 100%; padding: 12px; border: 2px solid #E2E8F0; border-radius: 8px; font-family: 'Poppins', sans-serif; font-size: 16px; margin-bottom: 16px;">
-                <div id="partyError" style="color: #DC2626; font-size: 0.875rem; text-align: center; margin-bottom: 12px; display: none;"></div>
-                <button class="modal-button" onclick="showPartyChoiceAfterName()">
-                    Continue
-                </button>
+                <div style="display: flex; flex-direction: column; gap: 12px;">
+                    <button class="modal-button" onclick="showCreateParty()">
+                        <i class="fas fa-plus-circle"></i> Create Party
+                    </button>
+                    <button class="modal-button" style="background: #F8FAFC; color: #64748B;" onclick="showJoinParty()">
+                        <i class="fas fa-sign-in-alt"></i> Join Party
+                    </button>
+                </div>
             `;
             document.getElementById('partyModal').classList.add('active');
             document.body.classList.add('modal-open');
         }
         
-        function showPartyChoiceAfterName() {
-            const displayName = document.getElementById('partyDisplayName').value.trim();
+        function showCreateParty() {
+            document.getElementById('partyModalTitle').textContent = 'Create Party';
+            document.getElementById('partyModalContent').innerHTML = `
+                <p style="text-align: center; color: #64748B; font-size: 0.875rem; margin-bottom: 16px;">
+                    Enter your display name to create a party.
+                </p>
+                <input type="text" id="createPartyName" placeholder="Your display name" maxlength="20" 
+                    style="width: 100%; padding: 12px; border: 2px solid #E2E8F0; border-radius: 8px; font-family: 'Poppins', sans-serif; font-size: 16px; margin-bottom: 16px;">
+                <div id="partyError" style="color: #DC2626; font-size: 0.875rem; text-align: center; margin-bottom: 12px; display: none;"></div>
+                <button class="modal-button" onclick="createParty()">
+                    Create Party
+                </button>
+                <button class="modal-button" style="background: #F8FAFC; color: #64748B; margin-top: 8px;" onclick="openPartyOptions()">
+                    <i class="fas fa-arrow-left"></i> Back
+                </button>
+            `;
+        }
+        
+        function showJoinParty() {
+            document.getElementById('partyModalTitle').textContent = 'Join Party';
+            document.getElementById('partyModalContent').innerHTML = `
+                <p style="text-align: center; color: #64748B; font-size: 0.875rem; margin-bottom: 16px;">
+                    Enter your display name and party code.
+                </p>
+                <input type="text" id="joinPartyName" placeholder="Your display name" maxlength="20" 
+                    style="width: 100%; padding: 12px; border: 2px solid #E2E8F0; border-radius: 8px; font-family: 'Poppins', sans-serif; font-size: 16px; margin-bottom: 12px;">
+                <input type="text" id="joinPartyCode" placeholder="Party code" maxlength="6" 
+                    style="width: 100%; padding: 12px; border: 2px solid #E2E8F0; border-radius: 8px; font-family: 'Poppins', sans-serif; font-size: 16px; text-transform: uppercase; margin-bottom: 16px;">
+                <div id="partyError" style="color: #DC2626; font-size: 0.875rem; text-align: center; margin-bottom: 12px; display: none;"></div>
+                <button class="modal-button" onclick="joinParty()">
+                    Join Party
+                </button>
+                <button class="modal-button" style="background: #F8FAFC; color: #64748B; margin-top: 8px;" onclick="openPartyOptions()">
+                    <i class="fas fa-arrow-left"></i> Back
+                </button>
+            `;
+        }
+        
+        function createParty() {
+            const displayName = document.getElementById('createPartyName').value.trim();
             const errorEl = document.getElementById('partyError');
             
             if (!displayName) {
@@ -1548,69 +1541,28 @@
                 return;
             }
             
-            // Store name temporarily
-            window.tempPartyName = displayName;
-            
-            // Now show create/join options
-            document.getElementById('partyModalTitle').textContent = 'Join or Create Party';
-            document.getElementById('partyModalContent').innerHTML = `
-                <p style="text-align: center; color: #64748B; font-size: 0.875rem; margin-bottom: 20px;">
-                    Playing as <strong>${displayName}</strong>
-                </p>
-                <div style="display: flex; flex-direction: column; gap: 10px;">
-                    <button class="modal-button" onclick="createPartyWithName()">
-                        <i class="fas fa-plus-circle"></i> Create Party
-                    </button>
-                    <button class="modal-button-secondary" onclick="showJoinPartyWithName()">
-                        <i class="fas fa-sign-in-alt"></i> Join Party
-                    </button>
-                    <button class="modal-button-secondary" onclick="openPartyOptions()">
-                        <i class="fas fa-arrow-left"></i> Back
-                    </button>
-                </div>
-            `;
-        }
-        
-        function createPartyWithName() {
-            const displayName = window.tempPartyName;
-            
             socket.emit('createParty', displayName, (response) => {
                 if (response.success) {
                     gameState.partyCode = response.code;
                     gameState.partyMembers = response.members;
                     showPartyCreated(response.code);
                 } else {
-                    const errorEl = document.getElementById('partyError');
-                    if (errorEl) {
-                        errorEl.textContent = response.error;
-                        errorEl.style.display = 'block';
-                    }
+                    errorEl.textContent = response.error;
+                    errorEl.style.display = 'block';
                 }
             });
         }
         
-        function showJoinPartyWithName() {
-            document.getElementById('partyModalTitle').textContent = 'Join Party';
-            document.getElementById('partyModalContent').innerHTML = `
-                <p style="text-align: center; color: #64748B; font-size: 0.875rem; margin-bottom: 16px;">
-                    Enter the party code to join
-                </p>
-                <input type="text" id="joinPartyCode" placeholder="Party code" maxlength="6" 
-                    style="width: 100%; padding: 12px; border: 2px solid #E2E8F0; border-radius: 8px; font-family: 'Poppins', sans-serif; font-size: 16px; text-transform: uppercase; margin-bottom: 16px;">
-                <div id="partyError" style="color: #DC2626; font-size: 0.875rem; text-align: center; margin-bottom: 12px; display: none;"></div>
-                <button class="modal-button" onclick="joinPartyWithName()">
-                    Join Party
-                </button>
-                <button class="modal-button-secondary" onclick="showPartyChoiceAfterName()">
-                    <i class="fas fa-arrow-left"></i> Back
-                </button>
-            `;
-        }
-        
-        function joinPartyWithName() {
-            const displayName = window.tempPartyName;
+        function joinParty() {
+            const displayName = document.getElementById('joinPartyName').value.trim();
             const code = document.getElementById('joinPartyCode').value.trim().toUpperCase();
             const errorEl = document.getElementById('partyError');
+            
+            if (!displayName) {
+                errorEl.textContent = 'Please enter a display name';
+                errorEl.style.display = 'block';
+                return;
+            }
             
             if (!code) {
                 errorEl.textContent = 'Please enter a party code';
@@ -1640,10 +1592,10 @@
                     <div class="party-code-label">Party Code</div>
                     <div class="party-code-value">${code}</div>
                 </div>
-                <button class="modal-button" id="copyCodeBtn" onclick="copyPartyCode('${code}')">
+                <button class="modal-button" onclick="copyPartyCode('${code}')">
                     <i class="fas fa-copy"></i> Copy Code
                 </button>
-                <button class="modal-button-secondary" onclick="closeModal('partyModal')">
+                <button class="modal-button" style="background: #F8FAFC; color: #64748B; margin-top: 8px;" onclick="closeModal('partyModal')">
                     Done
                 </button>
             `;
@@ -1663,77 +1615,16 @@
             updateLobbyPartyDisplay();
         }
         
-        function openPartySettings() {
-            if (!gameState.partyCode) return;
-            
-            // Build member list HTML
-            let membersHTML = '';
-            if (gameState.partyMembers && gameState.partyMembers.length > 0) {
-                membersHTML = `
-                    <div class="party-members-list">
-                        <div class="party-members-title">Members (${gameState.partyMembers.length}/5)</div>
-                        ${gameState.partyMembers.map(member => `
-                            <div class="party-member-item">
-                                <i class="fas fa-circle"></i>
-                                <span>${member.displayName}${member.isYou ? ' (You)' : ''}</span>
-                            </div>
-                        `).join('')}
-                    </div>
-                `;
-            }
-            
-            document.getElementById('partyModalTitle').textContent = 'Party Settings';
-            document.getElementById('partyModalContent').innerHTML = `
-                <div class="party-code-display">
-                    <div class="party-code-label">Party Code</div>
-                    <div class="party-code-value">${gameState.partyCode}</div>
-                </div>
-                <button class="modal-button" id="copyCodeBtn" onclick="copyPartyCodeSettings('${gameState.partyCode}')">
-                    <i class="fas fa-copy"></i> Copy Code
-                </button>
-                ${membersHTML}
-                <button class="modal-button-secondary" onclick="leaveParty()" style="margin-top: 20px;">
-                    <i class="fas fa-sign-out-alt"></i> Leave Party
-                </button>
-            `;
-            document.getElementById('partyModal').classList.add('active');
-            document.body.classList.add('modal-open');
-        }
-        
         function copyPartyCode(code) {
             navigator.clipboard.writeText(code).then(() => {
-                const btn = document.getElementById('copyCodeBtn');
-                if (btn) {
-                    const originalHTML = btn.innerHTML;
-                    btn.innerHTML = '<i class="fas fa-check"></i> Copied!';
-                    setTimeout(() => {
-                        btn.innerHTML = originalHTML;
-                        btn.blur();
-                    }, 2000);
-                }
+                const btn = event.target.closest('button');
+                const originalHTML = btn.innerHTML;
+                btn.innerHTML = '<i class="fas fa-check"></i> Copied!';
+                setTimeout(() => {
+                    btn.innerHTML = originalHTML;
+                    btn.blur();
+                }, 2000);
             });
-        }
-        
-        function copyPartyCodeSettings(code) {
-            navigator.clipboard.writeText(code).then(() => {
-                const btn = document.getElementById('copyCodeBtn');
-                if (btn) {
-                    const originalHTML = btn.innerHTML;
-                    btn.innerHTML = '<i class="fas fa-check"></i> Copied!';
-                    setTimeout(() => {
-                        btn.innerHTML = originalHTML;
-                        btn.blur();
-                    }, 2000);
-                }
-            });
-        }
-        
-        function leaveParty() {
-            socket.emit('leaveParty');
-            gameState.partyCode = null;
-            gameState.partyMembers = [];
-            closeModal('partyModal');
-            updateLobbyPartyDisplay();
         }
         
         function getInitials(name) {
@@ -1750,16 +1641,6 @@
                 if (gameState.partyCode && gameState.partyMembers.length > 0) {
                     partySection.style.display = 'block';
                     renderPartyBubbles(partySection.querySelector('.party-bubbles'));
-                    
-                    // Update button to show "Party Settings" instead of "Create/Join Party"
-                    const partyButtonsDiv = partySection.querySelector('.party-buttons');
-                    if (partyButtonsDiv) {
-                        partyButtonsDiv.innerHTML = `
-                            <button class="party-btn" onclick="openPartySettings()">
-                                <i class="fas fa-cog"></i> Party Settings
-                            </button>
-                        `;
-                    }
                 } else {
                     partySection.style.display = 'none';
                 }
@@ -1867,343 +1748,474 @@
             
             nextGame.setHours(20, 0, 0, 0);
             
-            if (est.getHours() >= 20) {
+            if (est >= nextGame) {
                 nextGame.setDate(nextGame.getDate() + 1);
             }
             
-            return Math.floor((nextGame - est) / 1000);
+            const diff = nextGame.getTime() - est.getTime();
+            const hours = Math.floor(diff / (1000 * 60 * 60));
+            const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+            const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+            
+            return { hours, minutes, seconds, total: diff };
         }
         
-        function formatTimeRemaining(seconds) {
-            const hours = Math.floor(seconds / 3600);
-            const minutes = Math.floor((seconds % 3600) / 60);
-            const secs = seconds % 60;
-            
-            if (hours > 0) {
-                return `${hours}h ${minutes}m`;
-            } else if (minutes > 0) {
-                return `${minutes}m ${secs}s`;
-            } else {
-                return `${secs}s`;
+        function updateCountdown() {
+            const time = getTimeUntilGame();
+            const countdownEl = document.getElementById('countdownTimer');
+            if (countdownEl) {
+                countdownEl.textContent = 
+                    `${String(time.hours).padStart(2, '0')}:${String(time.minutes).padStart(2, '0')}:${String(time.seconds).padStart(2, '0')}`;
             }
+            
+            if (time.total < 1000 && !gameState.testMode) {
+                clearInterval(countdownInterval);
+            }
+        }
+        
+        function showLobbyScreen() {
+            let html = '';
+            
+            if (gameState.hasPlayedToday && gameState.todayResult) {
+                const playersBeaten = gameState.todayResult.totalPlayers - gameState.todayResult.position;
+                const percentile = gameState.todayResult.totalPlayers > 1 ? 
+                    Math.round((playersBeaten / (gameState.todayResult.totalPlayers - 1)) * 100) : 
+                    100;
+                
+                html = `
+                    <div class="today-result">
+                        <div class="result-label">Today's Result</div>
+                        <div class="result-position">#${gameState.todayResult.position}</div>
+                        <div class="result-details">
+                            out of ${gameState.todayResult.totalPlayers} players<br>
+                            Better than ${percentile}% • ${gameState.todayResult.questionsCorrect} questions correct
+                        </div>
+                        <div class="tomorrow-message">See you tomorrow at 8pm EST!</div>
+                    </div>
+                `;
+            } else {
+                const playerText = gameState.waitingPlayers === 1 ? 'player waiting' : 'players waiting';
+                html = `
+                    <div class="countdown-display">
+                        <div class="countdown-label">Next game in</div>
+                        <div class="countdown-timer" id="countdownTimer">--:--:--</div>
+                        <div class="countdown-subtitle">8pm EST daily</div>
+                        <div class="waiting-count">${gameState.waitingPlayers} ${playerText}</div>
+                    </div>
+                    
+                    <div class="party-section" style="display: ${gameState.partyCode ? 'block' : 'none'}">
+                        <div class="party-label">Your Party</div>
+                        <div class="party-bubbles"></div>
+                    </div>
+                    
+                    <div class="party-section">
+                        <div class="party-label">Play with Friends</div>
+                        <div class="party-buttons">
+                            <button class="party-btn" onclick="openPartyOptions()">
+                                <i class="fas fa-users"></i> ${gameState.partyCode ? 'View Party' : 'Create/Join Party'}
+                            </button>
+                        </div>
+                    </div>
+                `;
+                
+                if (gameState.testMode) {
+                    html += `
+                        <div class="action-buttons" style="margin-top: 20px;">
+                            <button class="action-btn test-start" onclick="startTestGame()">
+                                <i class="fas fa-play"></i> Start Test Game
+                            </button>
+                        </div>
+                    `;
+                }
+            }
+            
+            document.getElementById('gameArea').innerHTML = html;
+            
+            // Update party display if in party
+            updateLobbyPartyDisplay();
+            
+            if (!gameState.hasPlayedToday) {
+                updateCountdown();
+                if (countdownInterval) clearInterval(countdownInterval);
+                countdownInterval = setInterval(updateCountdown, 1000);
+            }
+            
+            // Update share button state
+            updateShareButton();
         }
         
         function updateShareButton() {
             const shareBtn = document.getElementById('shareBtn');
-            if (gameState.todayResult || gameState.isWinner || gameState.position) {
-                shareBtn.disabled = false;
-            } else {
-                shareBtn.disabled = true;
+            if (shareBtn) {
+                shareBtn.disabled = !gameState.hasPlayedToday;
             }
         }
         
         function updateLeaveButton() {
             const leaveBtn = document.getElementById('leaveBtn');
-            if (gameState.status === 'playing' || gameState.status === 'starting' || gameState.isSpectating) {
-                leaveBtn.style.display = 'flex';
-            } else {
-                leaveBtn.style.display = 'none';
+            if (leaveBtn) {
+                // Show leave button only when spectating AND game is still playing (not finished)
+                leaveBtn.style.display = (gameState.isSpectating && gameState.status !== 'finished') ? 'flex' : 'none';
             }
         }
         
-        function showLobbyScreen() {
-            const gameArea = document.getElementById('gameArea');
-            
-            if (gameState.hasPlayedToday && gameState.todayResult) {
-                const result = gameState.todayResult;
-                const playersBeaten = result.totalPlayers - result.position;
-                const percentile = result.totalPlayers > 1 ? 
-                    Math.round((playersBeaten / (result.totalPlayers - 1)) * 100) : 
-                    100;
-                
-                gameArea.innerHTML = `
-                    <div class="today-result">
-                        <div class="result-label">Today's Result</div>
-                        <div class="result-position">#${result.position}</div>
-                        <div class="result-details">out of ${result.totalPlayers} players</div>
-                        <div class="percentile">Better than ${percentile}%</div>
-                        <div class="tomorrow-message">Come back tomorrow for the next game!</div>
-                    </div>
-                    <div class="party-section" style="${gameState.partyCode ? 'display: block;' : 'display: none;'}">
-                        <div class="party-label">Your Party</div>
-                        <div class="party-bubbles"></div>
-                        <div class="party-buttons">
-                            ${gameState.partyCode ? `
-                                <button class="party-btn" onclick="openPartySettings()">
-                                    <i class="fas fa-cog"></i> Party Settings
-                                </button>
-                            ` : `
-                                <button class="party-btn" onclick="openPartyOptions()">
-                                    <i class="fas fa-user-friends"></i> Create/Join Party
-                                </button>
-                            `}
-                        </div>
-                    </div>
-                `;
-            } else {
-                const secondsUntilGame = getTimeUntilGame();
-                
-                gameArea.innerHTML = `
-                    <div class="countdown-display">
-                        <div class="countdown-label">NEXT GAME IN</div>
-                        <div class="countdown-timer" id="countdownTimer">${formatTimeRemaining(secondsUntilGame)}</div>
-                        <div class="countdown-subtitle">Today at 8:00 PM EST</div>
-                        ${gameState.waitingPlayers > 0 ? `<div class="waiting-count">${gameState.waitingPlayers} ${gameState.waitingPlayers === 1 ? 'player' : 'players'} waiting</div>` : ''}
-                    </div>
-                    <div class="party-section" style="${gameState.partyCode ? 'display: block;' : 'display: none;'}">
-                        <div class="party-label">Play with Friends</div>
-                        <div class="party-bubbles"></div>
-                        <div class="party-buttons">
-                            ${gameState.partyCode ? `
-                                <button class="party-btn" onclick="openPartySettings()">
-                                    <i class="fas fa-cog"></i> Party Settings
-                                </button>
-                            ` : `
-                                <button class="party-btn" onclick="openPartyOptions()">
-                                    <i class="fas fa-user-friends"></i> Create/Join Party
-                                </button>
-                            `}
-                        </div>
-                    </div>
-                    ${gameState.testMode ? '<div style="margin-top: 24px;"><button class="action-btn test-start" onclick="startTestGame()"><i class="fas fa-play"></i> Start Test Game</button></div>' : ''}
-                `;
-                
-                updateLobbyPartyDisplay();
-                
-                if (countdownInterval) {
-                    clearInterval(countdownInterval);
-                }
-                
-                countdownInterval = setInterval(() => {
-                    const secs = getTimeUntilGame();
-                    const timer = document.getElementById('countdownTimer');
-                    if (timer) {
-                        timer.textContent = formatTimeRemaining(secs);
-                    }
-                    
-                    if (secs <= 0) {
-                        clearInterval(countdownInterval);
-                    }
-                }, 1000);
-            }
-        }
-        
-        // Socket event listeners
         socket.on('connect', () => {
             console.log('Connected to server');
-            socket.emit('register', getPlayerId());
+            socket.emit('identify', getPlayerId());
+            socket.emit('getGameState');
         });
         
-        socket.on('init', (data) => {
-            console.log('Init data received:', data);
-            gameState.gameNumber = data.gameNumber;
+        socket.on('gameStateUpdate', (data) => {
+            console.log('Game state update:', data);
             gameState.hasPlayedToday = data.hasPlayedToday;
             gameState.todayResult = data.todayResult;
-            gameState.waitingPlayers = data.waitingCount;
-            gameState.testMode = data.testMode;
+            gameState.waitingPlayers = data.waitingPlayers;
+            gameState.status = data.status;
+            gameState.testMode = data.testMode || false;
             
             if (gameState.testMode) {
                 document.getElementById('testModeBadge').classList.add('active');
             }
             
-            document.getElementById('headerGameNumber').textContent = `#${data.gameNumber}`;
+            if (gameState.status === 'waiting') {
+                const gameInfoHeader = document.getElementById('gameInfoHeader');
+                const countDisplay = document.getElementById('playerCountDisplay');
+                if (gameInfoHeader) gameInfoHeader.style.display = 'none';
+                if (countDisplay) countDisplay.style.display = 'none';
+                showLobbyScreen();
+            }
             
             updateShareButton();
-            showLobbyScreen();
+        });
+        
+        socket.on('currentGameNumber', (number) => {
+            console.log('Received game number:', number);
+            gameState.gameNumber = number;
+            document.getElementById('headerGameNumber').textContent = `#${number}`;
         });
         
         socket.on('playerCount', (count) => {
-            gameState.waitingPlayers = count;
-            const waitingCountEl = document.querySelector('.waiting-count');
-            if (waitingCountEl) {
-                waitingCountEl.textContent = `${count} ${count === 1 ? 'player' : 'players'} waiting`;
-            }
+            document.getElementById('playerCount').textContent = count;
+            // Never show player count header during game
+            const gameInfoHeader = document.getElementById('gameInfoHeader');
+            const countDisplay = document.getElementById('playerCountDisplay');
+            if (gameInfoHeader) gameInfoHeader.style.display = 'none';
+            if (countDisplay) countDisplay.style.display = 'none';
+        });
+        
+        socket.on('playersRemaining', (count) => {
+            document.getElementById('playerCount').textContent = count;
+            // Never show player count header during game
+            const gameInfoHeader = document.getElementById('gameInfoHeader');
+            const countDisplay = document.getElementById('playerCountDisplay');
+            if (gameInfoHeader) gameInfoHeader.style.display = 'none';
+            if (countDisplay) countDisplay.style.display = 'none';
         });
         
         socket.on('waitingCount', (count) => {
             gameState.waitingPlayers = count;
+            const waitingEl = document.querySelector('.waiting-count');
+            if (waitingEl) {
+                const playerText = count === 1 ? 'player waiting' : 'players waiting';
+                waitingEl.textContent = `${count} ${playerText}`;
+            }
+        });
+        
+        socket.on('partyUpdate', (data) => {
+            gameState.partyMembers = data.members;
+            updateLobbyPartyDisplay();
+            
+            // Also update during game if bubbles are visible
+            const gameBubbles = document.querySelector('.game-party-bubbles');
+            if (gameBubbles) {
+                renderPartyBubbles(gameBubbles);
+            }
         });
         
         socket.on('gameStarting', () => {
             console.log('Game is starting!');
+            clearInterval(countdownInterval);
+            gameState.hasPlayedToday = true;
             gameState.status = 'starting';
-            updateLeaveButton();
             
-            if (countdownInterval) {
-                clearInterval(countdownInterval);
-            }
-            
-            document.getElementById('gameArea').innerHTML = `
-                <div style="text-align: center; padding: 60px 0;">
-                    <div style="font-size: 1.25rem; font-weight: 600; color: #1E293B; margin-bottom: 16px;">
-                        Game Starting...
-                    </div>
-                    <div class="waiting-text">
-                        Get ready!
-                        <span class="loading-dots">
-                            <span></span>
-                            <span></span>
-                            <span></span>
-                        </span>
-                    </div>
-                </div>
-            `;
+            // Hide player count header
+            const gameInfoHeader = document.getElementById('gameInfoHeader');
+            const countDisplay = document.getElementById('playerCountDisplay');
+            if (gameInfoHeader) gameInfoHeader.style.display = 'none';
+            if (countDisplay) countDisplay.style.display = 'none';
         });
         
         socket.on('countdown', (count) => {
-            console.log('Countdown:', count);
+            gameState.previousRemaining = null;
             gameState.status = 'starting';
             
-            document.getElementById('gameArea').innerHTML = `
-                <div style="text-align: center; padding: 60px 0;">
-                    <div class="countdown">${count}</div>
-                </div>
-            `;
-        });
-        
-        socket.on('question', (data) => {
-            console.log('Question received:', data);
-            gameState.status = 'playing';
-            gameState.currentAnswer = null;
-            gameState.currentQuestion = data.number;
-            
-            // Store party members if provided
-            if (data.partyMembers) {
-                gameState.partyMembers = data.partyMembers;
-            }
-            
-            updateLeaveButton();
-            
+            // Hide player count header during countdown
             const gameInfoHeader = document.getElementById('gameInfoHeader');
             const countDisplay = document.getElementById('playerCountDisplay');
-            if (gameInfoHeader) gameInfoHeader.style.display = 'flex';
-            if (countDisplay) countDisplay.style.display = 'block';
+            if (gameInfoHeader) gameInfoHeader.style.display = 'none';
+            if (countDisplay) countDisplay.style.display = 'none';
             
-            let partyBubblesHTML = '';
+            let html = '';
+            
+            // Show party bubbles during countdown if in party
             if (gameState.partyCode && gameState.partyMembers.length > 0) {
-                partyBubblesHTML = `
+                html += `
                     <div class="party-bubbles game-party-bubbles" style="margin-bottom: 20px;">
                     </div>
                 `;
             }
             
-            const answersHTML = data.answers.map((answer, index) => {
-                const letter = String.fromCharCode(65 + index);
-                return `
-                    <button class="answer-btn" onclick="selectAnswer(${index})">
-                        <span class="letter">${letter}</span>
-                        <span class="answer-text">${answer}</span>
-                    </button>
-                `;
-            }).join('');
+            html += `<div class="countdown">${count}</div>`;
             
-            document.getElementById('gameArea').innerHTML = `
-                ${partyBubblesHTML}
-                <div class="question-meta">
-                    <span class="question-counter">Question ${data.number}/${data.total}</span>
-                    <span class="question-difficulty difficulty-${data.difficulty.toLowerCase()}">${data.difficulty}</span>
-                    <span class="timer-display" id="timerDisplay">${data.timeLimit}</span>
-                </div>
-                <div class="question-category">${cleanCategory(data.category)}</div>
-                <div class="question-text">${data.question}</div>
-                <div class="answers" id="answers">
-                    ${answersHTML}
-                </div>
-                <div class="timer-bar-container">
-                    <div class="timer-bar" id="timerBar"></div>
-                </div>
-            `;
+            document.getElementById('gameArea').innerHTML = html;
             
-            // Render party bubbles if they exist
+            // Render party bubbles
             const gameBubbles = document.querySelector('.game-party-bubbles');
             if (gameBubbles) {
                 renderPartyBubbles(gameBubbles);
             }
+        });
+        
+        socket.on('question', (data) => {
+            gameState.status = 'playing';
             
+            gameState.currentAnswer = null;
+            
+            // Update party members if included
+            if (data.partyMembers) {
+                gameState.partyMembers = data.partyMembers;
+            }
+            
+            // Hide player count header during questions
+            const gameInfoHeader = document.getElementById('gameInfoHeader');
+            const countDisplay = document.getElementById('playerCountDisplay');
+            if (gameInfoHeader) gameInfoHeader.style.display = 'none';
+            if (countDisplay) countDisplay.style.display = 'none';
+            
+            let difficultyClass = 'difficulty-easy';
+            if (data.difficulty === 'MEDIUM') difficultyClass = 'difficulty-medium';
+            if (data.difficulty === 'HARD') difficultyClass = 'difficulty-hard';
+            
+            let html = `
+                <div class="question-meta">
+                    <span class="question-counter">Question ${data.number}/${data.total}</span>
+                    <span class="question-difficulty ${difficultyClass}">${data.difficulty}</span>
+                    <div class="timer-wrapper">
+                        <span class="timer-icon">
+                            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="2"/>
+                                <path d="M12 7V12L15 15" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                            </svg>
+                        </span>
+                        <span class="timer">${data.timeLimit}</span>
+                    </div>
+                </div>
+            `;
+            
+            if (data.category) {
+                html += `<div class="question-category">${cleanCategory(data.category)}</div>`;
+            }
+            
+            html += `
+                <div class="question-text">${data.question}</div>
+                <div class="answers">
+            `;
+            
+            if (gameState.isSpectating) {
+                data.answers.forEach((answer, index) => {
+                    const letter = String.fromCharCode(65 + index);
+                    html += `
+                        <div class="answer-static">
+                            <span class="letter">${letter}</span>
+                            <span class="answer-text">${answer}</span>
+                        </div>
+                    `;
+                });
+            } else {
+                data.answers.forEach((answer, index) => {
+                    const letter = String.fromCharCode(65 + index);
+                    html += `
+                        <button class="answer-btn" onclick="submitAnswer(${index})">
+                            <span class="letter">${letter}</span>
+                            <span class="answer-text">${answer}</span>
+                        </button>
+                    `;
+                });
+            }
+            
+            html += `
+                </div>
+                <div class="timer-bar-container">
+                    <div class="timer-bar" id="timerBar" style="width: 100%;"></div>
+                </div>
+            `;
+            
+            // Completely clear and force a repaint before rendering
+            const gameArea = document.getElementById('gameArea');
+            gameArea.innerHTML = '';
+            void gameArea.offsetHeight; // Force reflow
+            
+            // Small delay to ensure clean state
             setTimeout(() => {
-                const timerBar = document.getElementById('timerBar');
-                if (timerBar) {
-                    timerBar.style.width = '0%';
+                gameArea.innerHTML = html;
+                
+                // Aggressively remove focus and clear any lingering mobile touch states
+                if (document.activeElement) {
+                    document.activeElement.blur();
                 }
-            }, 50);
+                
+                // Force another reflow
+                void gameArea.offsetHeight;
+                
+                // Remove focus from all buttons
+                setTimeout(() => {
+                    document.querySelectorAll('.answer-btn').forEach(btn => {
+                        btn.blur();
+                        // Force remove any webkit states
+                        btn.style.webkitTapHighlightColor = 'transparent';
+                    });
+                }, 0);
+                
+                // Start timer bar animation after render
+                setTimeout(() => {
+                    const timerBar = document.getElementById('timerBar');
+                    if (timerBar) {
+                        timerBar.style.width = '0%';
+                    }
+                }, 50);
+                
+                // Render party bubbles if in party
+                const gameBubbles = gameArea.querySelector('.game-party-bubbles');
+                if (gameBubbles) {
+                    renderPartyBubbles(gameBubbles);
+                }
+            }, 10);
         });
         
         socket.on('timer', (timeLeft) => {
-            const timerDisplay = document.getElementById('timerDisplay');
-            if (timerDisplay) {
-                timerDisplay.textContent = timeLeft;
-                if (timeLeft <= 3) {
-                    timerDisplay.classList.add('low');
-                } else {
-                    timerDisplay.classList.remove('low');
+            const timerElement = document.querySelector('.timer');
+            if (timerElement) {
+                timerElement.textContent = timeLeft;
+                const timerWrapper = document.querySelector('.timer-wrapper');
+                if (timerWrapper) {
+                    if (timeLeft <= 3) {
+                        timerWrapper.style.background = '#FEE2E2';
+                        timerElement.style.color = '#B91C1C';
+                    }
                 }
             }
         });
         
-        function selectAnswer(index) {
+        function submitAnswer(index) {
             if (gameState.currentAnswer !== null) return;
             
             gameState.currentAnswer = index;
-            socket.emit('answer', index);
             
             const buttons = document.querySelectorAll('.answer-btn');
             buttons.forEach((btn, i) => {
+                btn.disabled = true;
                 if (i === index) {
                     btn.classList.add('selected');
                 }
-                btn.disabled = true;
             });
+            
+            socket.emit('submitAnswer', index);
         }
         
         socket.on('results', (data) => {
-            console.log('Results received:', data);
-            clearTimeout(window.resultsTimeout);
+            if (!gameState.isSpectating && gameState.currentAnswer === data.correctIndex) {
+                gameState.questionsCorrect++;
+            }
             
-            // Store party members if provided
+            // Update party members if in party
             if (data.partyMembers) {
                 gameState.partyMembers = data.partyMembers;
             }
             
             const buttons = document.querySelectorAll('.answer-btn');
+            const staticAnswers = document.querySelectorAll('.answer-static');
+            
             buttons.forEach((btn, index) => {
-                btn.disabled = true;
+                btn.disabled = false;
+                btn.style.opacity = '1';
+                
+                // Add percentage badge
+                const percentage = data.answerPercentages ? data.answerPercentages[index] : 0;
+                const percentageBadge = document.createElement('span');
+                percentageBadge.className = 'answer-percentage';
+                percentageBadge.textContent = `${percentage}%`;
+                btn.appendChild(percentageBadge);
+                
                 if (index === data.correctIndex) {
                     btn.classList.add('correct');
-                } else if (index === gameState.currentAnswer) {
+                } else if (index === gameState.currentAnswer && !gameState.isSpectating) {
                     btn.classList.add('wrong');
                 }
-                
-                const percentage = data.answerPercentages[index];
-                btn.innerHTML += `<span class="answer-percentage">${percentage}%</span>`;
             });
             
-            if (gameState.currentAnswer === data.correctIndex) {
-                gameState.questionsCorrect++;
+            staticAnswers.forEach((answer, index) => {
+                if (index === data.correctIndex) {
+                    answer.style.background = '#059669';
+                    answer.style.color = 'white';
+                    answer.style.borderColor = '#059669';
+                    answer.style.opacity = '1';
+                    const letter = answer.querySelector('.letter');
+                    letter.style.background = 'transparent';
+                    letter.style.color = 'white';
+                    letter.style.borderColor = 'rgba(255,255,255,0.3)';
+                    
+                    // Add percentage badge for spectators
+                    const percentage = data.answerPercentages ? data.answerPercentages[index] : 0;
+                    const percentageBadge = document.createElement('span');
+                    percentageBadge.className = 'answer-percentage';
+                    percentageBadge.style.color = 'rgba(255, 255, 255, 0.9)';
+                    percentageBadge.textContent = `${percentage}%`;
+                    answer.appendChild(percentageBadge);
+                } else {
+                    // Add percentage badge for non-correct answers too
+                    const percentage = data.answerPercentages ? data.answerPercentages[index] : 0;
+                    const percentageBadge = document.createElement('span');
+                    percentageBadge.className = 'answer-percentage';
+                    percentageBadge.textContent = `${percentage}%`;
+                    answer.appendChild(percentageBadge);
+                }
+            });
+            
+            // Update party bubbles with new status
+            const gameBubbles = document.querySelector('.game-party-bubbles');
+            if (gameBubbles && gameState.partyMembers.length > 0) {
+                renderPartyBubbles(gameBubbles);
             }
             
-            window.resultsTimeout = setTimeout(() => {
-                let partyBubblesHTML = '';
+            setTimeout(() => {
+                let statusText = gameState.isSpectating ? 'SPECTATING' : 'CORRECT';
+                const startRemaining = gameState.previousRemaining || (data.remaining + data.eliminated);
+                
+                let html = '';
+                
+                // Show party bubbles during results if in party
                 if (gameState.partyCode && gameState.partyMembers.length > 0) {
-                    partyBubblesHTML = `
+                    html += `
                         <div class="party-bubbles game-party-bubbles" style="margin-bottom: 20px;">
                         </div>
                     `;
                 }
                 
-                document.getElementById('gameArea').innerHTML = `
-                    ${partyBubblesHTML}
+                html += `
                     <div class="results">
-                        <div class="results-title ${gameState.currentAnswer === data.correctIndex ? 'correct' : ''}">
-                            ${gameState.currentAnswer === data.correctIndex ? '<i class="fas fa-check-circle"></i> CORRECT!' : ''}
+                        <div class="results-title ${gameState.isSpectating ? '' : 'correct'}">
+                            ${statusText}
                         </div>
                         <div class="remaining-count-section">
-                            <div class="remaining-label">Players remaining</div>
-                            <div class="remaining-number">${data.remaining}</div>
-                            ${data.eliminated > 0 ? `<div class="elimination-bubble"><i class="fas fa-skull-crossbones"></i> -${data.eliminated}</div>` : ''}
+                            <div class="remaining-number" id="remainingCount">${startRemaining}</div>
+                            ${data.eliminated > 0 ? `<div class="elimination-bubble">-${data.eliminated}</div>` : ''}
+                            <div class="remaining-label">players remaining</div>
                         </div>
-                        <div class="countdown-text">Next question in 3 seconds...</div>
+                        <div class="countdown-text" id="nextQuestionCountdown"></div>
                     </div>
                 `;
+                
+                document.getElementById('gameArea').innerHTML = html;
                 
                 // Render party bubbles
                 const gameBubbles = document.querySelector('.game-party-bubbles');
@@ -2211,36 +2223,54 @@
                     renderPartyBubbles(gameBubbles);
                 }
                 
-                const playerCountEl = document.getElementById('playerCount');
-                const playerCountLabel = document.getElementById('playerCountLabel');
-                if (playerCountEl) {
-                    playerCountEl.textContent = data.remaining;
-                    if (playerCountLabel) {
-                        playerCountLabel.textContent = data.remaining === 1 ? 'player remaining' : 'players remaining';
-                    }
+                if (data.eliminated > 0) {
+                    const remainingElement = document.getElementById('remainingCount');
+                    const duration = 1200;
+                    const steps = 40;
+                    const stepDuration = duration / steps;
+                    const decrement = data.eliminated / steps;
+                    let current = startRemaining;
+                    let step = 0;
+                    
+                    const interval = setInterval(() => {
+                        step++;
+                        if (step >= steps) {
+                            remainingElement.textContent = data.remaining;
+                            clearInterval(interval);
+                        } else {
+                            current = Math.round(startRemaining - (decrement * step));
+                            remainingElement.textContent = current;
+                        }
+                    }, stepDuration);
                 }
                 
                 gameState.previousRemaining = data.remaining;
+                
+                // Start countdown after 4 seconds on results screen
+                setTimeout(() => {
+                    const countdownEl = document.getElementById('nextQuestionCountdown');
+                    if (countdownEl) {
+                        let secondsLeft = 3;
+                        countdownEl.textContent = `Next question in ${secondsLeft}...`;
+                        
+                        const countdownInterval = setInterval(() => {
+                            secondsLeft--;
+                            if (secondsLeft > 0 && countdownEl) {
+                                countdownEl.textContent = `Next question in ${secondsLeft}...`;
+                            } else {
+                                clearInterval(countdownInterval);
+                            }
+                        }, 1000);
+                    }
+                }, 4000);
             }, 4000);
         });
         
-        socket.on('playersRemaining', (count) => {
-            const playerCountEl = document.getElementById('playerCount');
-            const playerCountLabel = document.getElementById('playerCountLabel');
-            if (playerCountEl) {
-                playerCountEl.textContent = count;
-                if (playerCountLabel) {
-                    playerCountLabel.textContent = count === 1 ? 'player remaining' : 'players remaining';
-                }
-            }
-        });
-        
         socket.on('eliminated', (data) => {
-            console.log('You were eliminated!', data);
             gameState.isSpectating = true;
             gameState.position = data.position;
             gameState.totalPlayers = data.totalPlayers;
-            gameState.questionsCorrect = data.questionsCorrect;
+            
             gameState.todayResult = {
                 position: data.position,
                 totalPlayers: data.totalPlayers,
