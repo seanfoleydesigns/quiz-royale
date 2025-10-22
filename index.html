@@ -1896,29 +1896,20 @@
         
         socket.on('playerCount', (count) => {
             document.getElementById('playerCount').textContent = count;
+            // Never show player count header during game
             const gameInfoHeader = document.getElementById('gameInfoHeader');
             const countDisplay = document.getElementById('playerCountDisplay');
-            const label = document.getElementById('playerCountLabel');
-            
-            if (gameState.status === 'waiting') {
-                if (gameInfoHeader) gameInfoHeader.style.display = 'none';
-                if (countDisplay) countDisplay.style.display = 'none';
-            } else {
-                if (gameInfoHeader) gameInfoHeader.style.display = 'flex';
-                if (countDisplay) countDisplay.style.display = 'inline';
-                if (label) label.textContent = 'players remaining';
-            }
+            if (gameInfoHeader) gameInfoHeader.style.display = 'none';
+            if (countDisplay) countDisplay.style.display = 'none';
         });
         
         socket.on('playersRemaining', (count) => {
             document.getElementById('playerCount').textContent = count;
+            // Never show player count header during game
             const gameInfoHeader = document.getElementById('gameInfoHeader');
             const countDisplay = document.getElementById('playerCountDisplay');
-            const label = document.getElementById('playerCountLabel');
-            
-            if (gameInfoHeader) gameInfoHeader.style.display = 'flex';
-            if (countDisplay) countDisplay.style.display = 'inline';
-            if (label) label.textContent = 'players remaining';
+            if (gameInfoHeader) gameInfoHeader.style.display = 'none';
+            if (countDisplay) countDisplay.style.display = 'none';
         });
         
         socket.on('waitingCount', (count) => {
@@ -1947,12 +1938,11 @@
             gameState.hasPlayedToday = true;
             gameState.status = 'starting';
             
+            // Hide player count header
             const gameInfoHeader = document.getElementById('gameInfoHeader');
             const countDisplay = document.getElementById('playerCountDisplay');
-            const label = document.getElementById('playerCountLabel');
-            if (gameInfoHeader) gameInfoHeader.style.display = 'flex';
-            if (countDisplay) countDisplay.style.display = 'inline';
-            if (label) label.textContent = 'players remaining';
+            if (gameInfoHeader) gameInfoHeader.style.display = 'none';
+            if (countDisplay) countDisplay.style.display = 'none';
         });
         
         socket.on('countdown', (count) => {
