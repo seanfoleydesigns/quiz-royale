@@ -2197,12 +2197,6 @@
                 renderPartyBubbles(gameBubbles);
             }
             
-            // Show player count in header briefly for results screen
-            const gameInfoHeader = document.getElementById('gameInfoHeader');
-            const countDisplay = document.getElementById('playerCountDisplay');
-            if (gameInfoHeader) gameInfoHeader.style.display = 'flex';
-            if (countDisplay) countDisplay.style.display = 'inline';
-            
             setTimeout(() => {
                 let statusText = gameState.isSpectating ? 'SPECTATING' : 'CORRECT';
                 const startRemaining = gameState.previousRemaining || (data.remaining + data.eliminated);
@@ -2225,6 +2219,7 @@
                         <div class="remaining-count-section">
                             <div class="remaining-number" id="remainingCount">${startRemaining}</div>
                             ${data.eliminated > 0 ? `<div class="elimination-bubble">-${data.eliminated}</div>` : ''}
+                            <div class="remaining-label">players remaining</div>
                         </div>
                         <div class="countdown-text" id="nextQuestionCountdown"></div>
                     </div>
