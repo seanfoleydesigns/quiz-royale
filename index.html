@@ -191,6 +191,149 @@
             margin-top: 16px;
         }
         
+        /* Party System */
+        .party-section {
+            margin-top: 24px;
+            padding-top: 24px;
+            border-top: 1px solid #E2E8F0;
+        }
+        
+        .party-label {
+            font-size: 0.875rem;
+            color: #64748B;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 12px;
+            text-align: center;
+        }
+        
+        .party-buttons {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+        }
+        
+        .party-btn {
+            background: #F8FAFC;
+            border: 2px solid #E2E8F0;
+            color: #64748B;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-size: 0.875rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.15s ease;
+            font-family: 'Poppins', sans-serif;
+        }
+        
+        .party-btn:hover {
+            background: #6366F1;
+            color: white;
+            border-color: #6366F1;
+        }
+        
+        .party-bubbles {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+            align-items: flex-start;
+            margin: 16px 0;
+            flex-wrap: wrap;
+            overflow-x: auto;
+            padding: 4px 0;
+        }
+        
+        .party-bubble {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            position: relative;
+        }
+        
+        .bubble-circle {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background: #94A3B8;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.125rem;
+            font-weight: 700;
+            color: white;
+            position: relative;
+            flex-shrink: 0;
+        }
+        
+        .bubble-circle.you {
+            background: #6366F1;
+        }
+        
+        .bubble-badge {
+            position: absolute;
+            top: -2px;
+            right: -2px;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.75rem;
+            border: 2px solid white;
+        }
+        
+        .bubble-badge.correct {
+            background: #059669;
+            color: white;
+        }
+        
+        .bubble-badge.wrong {
+            background: #DC2626;
+            color: white;
+        }
+        
+        .bubble-name {
+            font-size: 0.6875rem;
+            color: #64748B;
+            font-weight: 500;
+            max-width: 60px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        
+        .bubble-status {
+            font-size: 0.625rem;
+            color: #94A3B8;
+        }
+        
+        .party-code-display {
+            background: #F8FAFC;
+            border: 2px solid #E2E8F0;
+            padding: 12px 16px;
+            border-radius: 8px;
+            text-align: center;
+            margin-top: 16px;
+        }
+        
+        .party-code-label {
+            font-size: 0.75rem;
+            color: #64748B;
+            margin-bottom: 4px;
+        }
+        
+        .party-code-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #6366F1;
+            letter-spacing: 2px;
+            font-family: 'Courier New', monospace;
+        }
+        
         /* Today's Result Display */
         .today-result {
             text-align: center;
@@ -1002,6 +1145,22 @@
                 font-size: 0.8125rem;
             }
             
+            .party-bubbles {
+                gap: 8px;
+            }
+            
+            .bubble-circle {
+                width: 42px;
+                height: 42px;
+                font-size: 1rem;
+            }
+            
+            .bubble-badge {
+                width: 16px;
+                height: 16px;
+                font-size: 0.625rem;
+            }
+            
             .question-meta {
                 margin-bottom: 16px;
                 padding-bottom: 12px;
@@ -1187,6 +1346,16 @@
             <button class="modal-button" onclick="closeModal('statsModal')">Close</button>
         </div>
     </div>
+    
+    <div class="modal-overlay" id="partyModal" onclick="closeModal('partyModal')">
+        <div class="modal-content" onclick="event.stopPropagation()">
+            <button class="modal-close" onclick="closeModal('partyModal')">
+                <i class="fas fa-times"></i>
+            </button>
+            <h2 class="modal-title" id="partyModalTitle">Party</h2>
+            <div id="partyModalContent"></div>
+        </div>
+    </div>
 
     <script src="/socket.io/socket.io.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
@@ -1204,7 +1373,9 @@
             hasPlayedToday: false,
             todayResult: null,
             waitingPlayers: 0,
-            testMode: false
+            testMode: false,
+            partyCode: null,
+            partyMembers: []
         };
         
         let countdownInterval = null;
@@ -1282,16 +1453,223 @@
             document.body.classList.remove('modal-open');
         }
         
+        // Party system functions
+        function openPartyOptions() {
+            document.getElementById('partyModalTitle').textContent = 'Join or Create Party';
+            document.getElementById('partyModalContent').innerHTML = `
+                <p style="text-align: center; color: #64748B; font-size: 0.875rem; margin-bottom: 20px;">
+                    Play with friends! Create a party or join with a code.
+                </p>
+                <div style="display: flex; flex-direction: column; gap: 12px;">
+                    <button class="modal-button" onclick="showCreateParty()">
+                        <i class="fas fa-plus-circle"></i> Create Party
+                    </button>
+                    <button class="modal-button" style="background: #F8FAFC; color: #64748B;" onclick="showJoinParty()">
+                        <i class="fas fa-sign-in-alt"></i> Join Party
+                    </button>
+                </div>
+            `;
+            document.getElementById('partyModal').classList.add('active');
+            document.body.classList.add('modal-open');
+        }
+        
+        function showCreateParty() {
+            document.getElementById('partyModalTitle').textContent = 'Create Party';
+            document.getElementById('partyModalContent').innerHTML = `
+                <p style="text-align: center; color: #64748B; font-size: 0.875rem; margin-bottom: 16px;">
+                    Enter your display name to create a party.
+                </p>
+                <input type="text" id="createPartyName" placeholder="Your display name" maxlength="20" 
+                    style="width: 100%; padding: 12px; border: 2px solid #E2E8F0; border-radius: 8px; font-family: 'Poppins', sans-serif; font-size: 0.9375rem; margin-bottom: 16px;">
+                <div id="partyError" style="color: #DC2626; font-size: 0.875rem; text-align: center; margin-bottom: 12px; display: none;"></div>
+                <button class="modal-button" onclick="createParty()">
+                    Create Party
+                </button>
+                <button class="modal-button" style="background: #F8FAFC; color: #64748B; margin-top: 8px;" onclick="openPartyOptions()">
+                    <i class="fas fa-arrow-left"></i> Back
+                </button>
+            `;
+        }
+        
+        function showJoinParty() {
+            document.getElementById('partyModalTitle').textContent = 'Join Party';
+            document.getElementById('partyModalContent').innerHTML = `
+                <p style="text-align: center; color: #64748B; font-size: 0.875rem; margin-bottom: 16px;">
+                    Enter your display name and party code.
+                </p>
+                <input type="text" id="joinPartyName" placeholder="Your display name" maxlength="20" 
+                    style="width: 100%; padding: 12px; border: 2px solid #E2E8F0; border-radius: 8px; font-family: 'Poppins', sans-serif; font-size: 0.9375rem; margin-bottom: 12px;">
+                <input type="text" id="joinPartyCode" placeholder="Party code" maxlength="6" 
+                    style="width: 100%; padding: 12px; border: 2px solid #E2E8F0; border-radius: 8px; font-family: 'Poppins', sans-serif; font-size: 0.9375rem; text-transform: uppercase; margin-bottom: 16px;">
+                <div id="partyError" style="color: #DC2626; font-size: 0.875rem; text-align: center; margin-bottom: 12px; display: none;"></div>
+                <button class="modal-button" onclick="joinParty()">
+                    Join Party
+                </button>
+                <button class="modal-button" style="background: #F8FAFC; color: #64748B; margin-top: 8px;" onclick="openPartyOptions()">
+                    <i class="fas fa-arrow-left"></i> Back
+                </button>
+            `;
+        }
+        
+        function createParty() {
+            const displayName = document.getElementById('createPartyName').value.trim();
+            const errorEl = document.getElementById('partyError');
+            
+            if (!displayName) {
+                errorEl.textContent = 'Please enter a display name';
+                errorEl.style.display = 'block';
+                return;
+            }
+            
+            socket.emit('createParty', displayName, (response) => {
+                if (response.success) {
+                    gameState.partyCode = response.code;
+                    gameState.partyMembers = response.members;
+                    showPartyCreated(response.code);
+                } else {
+                    errorEl.textContent = response.error;
+                    errorEl.style.display = 'block';
+                }
+            });
+        }
+        
+        function joinParty() {
+            const displayName = document.getElementById('joinPartyName').value.trim();
+            const code = document.getElementById('joinPartyCode').value.trim().toUpperCase();
+            const errorEl = document.getElementById('partyError');
+            
+            if (!displayName) {
+                errorEl.textContent = 'Please enter a display name';
+                errorEl.style.display = 'block';
+                return;
+            }
+            
+            if (!code) {
+                errorEl.textContent = 'Please enter a party code';
+                errorEl.style.display = 'block';
+                return;
+            }
+            
+            socket.emit('joinParty', { displayName, code }, (response) => {
+                if (response.success) {
+                    gameState.partyCode = response.code;
+                    gameState.partyMembers = response.members;
+                    showPartyJoined();
+                } else {
+                    errorEl.textContent = response.error;
+                    errorEl.style.display = 'block';
+                }
+            });
+        }
+        
+        function showPartyCreated(code) {
+            document.getElementById('partyModalTitle').textContent = 'Party Created!';
+            document.getElementById('partyModalContent').innerHTML = `
+                <p style="text-align: center; color: #64748B; font-size: 0.875rem; margin-bottom: 16px;">
+                    Share this code with your friends!
+                </p>
+                <div class="party-code-display">
+                    <div class="party-code-label">Party Code</div>
+                    <div class="party-code-value">${code}</div>
+                </div>
+                <button class="modal-button" onclick="copyPartyCode('${code}')">
+                    <i class="fas fa-copy"></i> Copy Code
+                </button>
+                <button class="modal-button" style="background: #F8FAFC; color: #64748B; margin-top: 8px;" onclick="closeModal('partyModal')">
+                    Done
+                </button>
+            `;
+            updateLobbyPartyDisplay();
+        }
+        
+        function showPartyJoined() {
+            document.getElementById('partyModalTitle').textContent = 'Party Joined!';
+            document.getElementById('partyModalContent').innerHTML = `
+                <p style="text-align: center; color: #059669; font-size: 0.9375rem; font-weight: 600; margin-bottom: 16px;">
+                    <i class="fas fa-check-circle"></i> You're in!
+                </p>
+                <button class="modal-button" onclick="closeModal('partyModal')">
+                    Done
+                </button>
+            `;
+            updateLobbyPartyDisplay();
+        }
+        
+        function copyPartyCode(code) {
+            navigator.clipboard.writeText(code).then(() => {
+                const btn = event.target.closest('button');
+                const originalHTML = btn.innerHTML;
+                btn.innerHTML = '<i class="fas fa-check"></i> Copied!';
+                setTimeout(() => {
+                    btn.innerHTML = originalHTML;
+                    btn.blur();
+                }, 2000);
+            });
+        }
+        
+        function getInitials(name) {
+            const words = name.trim().split(' ');
+            if (words.length >= 2) {
+                return (words[0][0] + words[words.length - 1][0]).toUpperCase();
+            }
+            return name.substring(0, 2).toUpperCase();
+        }
+        
+        function updateLobbyPartyDisplay() {
+            const partySection = document.querySelector('.party-section');
+            if (partySection) {
+                if (gameState.partyCode && gameState.partyMembers.length > 0) {
+                    partySection.style.display = 'block';
+                    renderPartyBubbles(partySection.querySelector('.party-bubbles'));
+                } else {
+                    partySection.style.display = 'none';
+                }
+            }
+        }
+        
+        function renderPartyBubbles(container) {
+            if (!container || !gameState.partyMembers.length) return;
+            
+            container.innerHTML = gameState.partyMembers.map(member => {
+                const initials = getInitials(member.displayName);
+                const isYou = member.isYou;
+                let badge = '';
+                let statusText = '';
+                
+                if (member.status === 'alive') {
+                    badge = '<span class="bubble-badge correct">✓</span>';
+                } else if (member.status === 'eliminated') {
+                    badge = '<span class="bubble-badge wrong">✗</span>';
+                    statusText = `<div class="bubble-status">Q${member.eliminatedOnQuestion}</div>`;
+                }
+                
+                return `
+                    <div class="party-bubble">
+                        <div class="bubble-circle ${isYou ? 'you' : ''}">
+                            ${initials}
+                            ${badge}
+                        </div>
+                        <div class="bubble-name">${member.displayName}</div>
+                        ${statusText}
+                    </div>
+                `;
+            }).join('');
+        }
+        
         document.addEventListener('keydown', (e) => {
             if (e.key === 'Escape') {
                 const tutorialModal = document.getElementById('tutorialModal');
                 const statsModal = document.getElementById('statsModal');
+                const partyModal = document.getElementById('partyModal');
                 
                 if (tutorialModal.classList.contains('active')) {
                     closeModal('tutorialModal');
                 }
                 if (statsModal.classList.contains('active')) {
                     closeModal('statsModal');
+                }
+                if (partyModal.classList.contains('active')) {
+                    closeModal('partyModal');
                 }
             }
         });
@@ -1404,6 +1782,20 @@
                         <div class="countdown-subtitle">8pm EST daily</div>
                         <div class="waiting-count">${gameState.waitingPlayers} ${playerText}</div>
                     </div>
+                    
+                    <div class="party-section" style="display: ${gameState.partyCode ? 'block' : 'none'}">
+                        <div class="party-label">Your Party</div>
+                        <div class="party-bubbles"></div>
+                    </div>
+                    
+                    <div class="party-section">
+                        <div class="party-label">Play with Friends</div>
+                        <div class="party-buttons">
+                            <button class="party-btn" onclick="openPartyOptions()">
+                                <i class="fas fa-users"></i> ${gameState.partyCode ? 'View Party' : 'Create/Join Party'}
+                            </button>
+                        </div>
+                    </div>
                 `;
                 
                 if (gameState.testMode) {
@@ -1418,6 +1810,9 @@
             }
             
             document.getElementById('gameArea').innerHTML = html;
+            
+            // Update party display if in party
+            updateLobbyPartyDisplay();
             
             if (!gameState.hasPlayedToday) {
                 updateCountdown();
@@ -1512,6 +1907,17 @@
             if (waitingEl) {
                 const playerText = count === 1 ? 'player waiting' : 'players waiting';
                 waitingEl.textContent = `${count} ${playerText}`;
+            }
+        });
+        
+        socket.on('partyUpdate', (data) => {
+            gameState.partyMembers = data.members;
+            updateLobbyPartyDisplay();
+            
+            // Also update during game if bubbles are visible
+            const gameBubbles = document.querySelector('.game-party-bubbles');
+            if (gameBubbles) {
+                renderPartyBubbles(gameBubbles);
             }
         });
         
@@ -1643,6 +2049,12 @@
                         timerBar.style.width = '0%';
                     }
                 }, 50);
+                
+                // Render party bubbles if in party
+                const gameBubbles = gameArea.querySelector('.game-party-bubbles');
+                if (gameBubbles) {
+                    renderPartyBubbles(gameBubbles);
+                }
             }, 10);
         });
         
@@ -1679,6 +2091,11 @@
         socket.on('results', (data) => {
             if (!gameState.isSpectating && gameState.currentAnswer === data.correctIndex) {
                 gameState.questionsCorrect++;
+            }
+            
+            // Update party members if in party
+            if (data.partyMembers) {
+                gameState.partyMembers = data.partyMembers;
             }
             
             const buttons = document.querySelectorAll('.answer-btn');
@@ -1729,6 +2146,12 @@
                     answer.appendChild(percentageBadge);
                 }
             });
+            
+            // Update party bubbles with new status
+            const gameBubbles = document.querySelector('.game-party-bubbles');
+            if (gameBubbles && gameState.partyMembers.length > 0) {
+                renderPartyBubbles(gameBubbles);
+            }
             
             setTimeout(() => {
                 let statusText = gameState.isSpectating ? 'SPECTATING' : 'CORRECT';
