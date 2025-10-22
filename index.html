@@ -698,6 +698,7 @@
             margin: 32px 0;
             position: relative;
             display: inline-block;
+            min-height: 120px;
         }
         
         .remaining-number {
@@ -717,8 +718,8 @@
         
         .elimination-bubble {
             position: absolute;
-            top: -5px;
-            right: -50px;
+            top: 0;
+            right: -35px;
             background: #FEE2E2;
             color: #DC2626;
             padding: 6px 14px;
@@ -742,7 +743,8 @@
         .countdown-text {
             color: #94A3B8;
             font-size: 0.875rem;
-            margin-top: 40px;
+            margin-top: 20px;
+            min-height: 24px;
         }
         
         /* Final Position Screen */
@@ -1213,6 +1215,16 @@
             .remaining-number {
                 font-size: 3.5rem;
                 margin-bottom: 8px;
+            }
+            
+            .remaining-count-section {
+                min-height: 100px;
+            }
+            
+            .elimination-bubble {
+                right: -30px;
+                font-size: 0.75rem;
+                padding: 4px 10px;
             }
             
             .results-title {
@@ -2213,7 +2225,6 @@
                         <div class="remaining-count-section">
                             <div class="remaining-number" id="remainingCount">${startRemaining}</div>
                             ${data.eliminated > 0 ? `<div class="elimination-bubble">-${data.eliminated}</div>` : ''}
-                            <div class="remaining-label">players remaining</div>
                         </div>
                         <div class="countdown-text" id="nextQuestionCountdown"></div>
                     </div>
