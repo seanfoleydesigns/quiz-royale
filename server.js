@@ -6,6 +6,7 @@ const axios = require('axios');
 const fs = require('fs');
 const path = require('path');
 const cron = require('node-cron');
+const Filter = require('bad-words');
 
 // Serve static files from public folder
 app.use(express.static('public'));
@@ -79,11 +80,12 @@ function generatePartyCode() {
     return code;
 }
 
-// Simple profanity filter (expand this list as needed)
+// Initialize profanity filter
+const profanityFilter = new Filter();
+
+// Check if text contains profanity
 function containsProfanity(text) {
-    const badWords = ['fuck', 'shit', 'ass', 'bitch', 'damn', 'crap', 'hell', 'dick', 'cock', 'pussy', 'nigger', 'nigga', 'fag', 'faggot', 'retard'];
-    const lowerText = text.toLowerCase();
-    return badWords.some(word => lowerText.includes(word));
+    return profanityFilter.isProfane(text);
 }
 
 // Load or create today's player data
@@ -517,8 +519,8 @@ io.on('connection', (socket) => {
             return;
         }
         
-        if (displayName.length > 20) {
-            callback({ success: false, error: 'Display name too long (max 20 chars)' });
+        if (displayName.length > 10) {
+            callback({ success: false, error: 'Display name too long (max 10 chars)' });
             return;
         }
         
@@ -565,8 +567,8 @@ io.on('connection', (socket) => {
             return;
         }
         
-        if (displayName.length > 20) {
-            callback({ success: false, error: 'Display name too long (max 20 chars)' });
+        if (displayName.length > 10) {
+            callback({ success: false, error: 'Display name too long (max 10 chars)' });
             return;
         }
         
