@@ -38,14 +38,12 @@
             justify-content: center;
             padding: 20px;
             padding-bottom: env(safe-area-inset-bottom, 20px);
-            overflow-x: hidden;
         }
         
         .container {
             width: 100%;
             max-width: 400px;
             position: relative;
-            overflow-x: hidden;
         }
         
         .game-box {
@@ -53,7 +51,6 @@
             border-radius: 16px;
             padding: 32px 28px;
             position: relative;
-            overflow-x: hidden;
         }
         
         /* Header */
@@ -243,9 +240,8 @@
             align-items: flex-start;
             margin: 16px 0;
             flex-wrap: wrap;
-            overflow-x: hidden;
             padding: 4px 0;
-            max-width: 100%;
+            width: 100%;
         }
         
         .party-bubble {
@@ -322,6 +318,7 @@
             border-radius: 8px;
             text-align: center;
             margin-top: 16px;
+            word-break: break-all;
         }
         
         .party-code-label {
@@ -336,6 +333,7 @@
             color: #6366F1;
             letter-spacing: 2px;
             font-family: 'Courier New', monospace;
+            word-break: break-all;
         }
         
         /* Today's Result Display */
@@ -1151,6 +1149,7 @@
             
             .party-bubbles {
                 gap: 8px;
+                margin: 12px 0 16px 0;
             }
             
             .bubble-circle {
@@ -1168,11 +1167,6 @@
             .bubble-name {
                 font-size: 0.625rem;
                 max-width: 50px;
-            }
-            
-            .game-party-bubbles {
-                margin: 12px -4px 16px -4px;
-                gap: 6px;
             }
             
             .question-meta {
