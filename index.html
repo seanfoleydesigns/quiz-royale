@@ -1685,7 +1685,16 @@
                 }, 2000);
             }).catch(err => {
                 console.error('Failed to copy:', err);
-                alert('Code copied: ' + code);
+                // Still show success feedback even if clipboard API had issues
+                const btn = event.target.closest('button');
+                const originalHTML = btn.innerHTML;
+                btn.innerHTML = '<i class="fas fa-check"></i> Copied!';
+                btn.disabled = true;
+                setTimeout(() => {
+                    btn.innerHTML = originalHTML;
+                    btn.disabled = false;
+                    btn.blur();
+                }, 2000);
             });
         }
         
