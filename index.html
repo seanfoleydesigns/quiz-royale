@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     
     <!-- Favicons -->
-    <link rel="icon" type="image/png" href="/favicon-circles.png">
+    <link rel="icon" type="image/png" href="/favicon-circle.png">
     <link rel="apple-touch-icon" href="/apple-touch-icon.png">
     
     <!-- Open Graph / Social Media -->
@@ -57,6 +57,16 @@
         .header {
             text-align: center;
             margin-bottom: 32px;
+            position: relative;
+        }
+        
+        .brand-logo {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 56px;
+            height: 56px;
+            pointer-events: none;
         }
         
         .logo {
@@ -1090,6 +1100,11 @@
                 margin-bottom: 4px;
             }
             
+            .brand-logo {
+                width: 48px;
+                height: 48px;
+            }
+            
             /* Compact modals for mobile */
             .modal-content {
                 padding: 24px 20px 20px 20px;
@@ -1278,6 +1293,7 @@
         <div class="status-badge" id="statusBadge"></div>
         <div class="game-box">
             <div class="header">
+                <img src="/logo-transparent.png" alt="Triviarena Logo" class="brand-logo">
                 <div class="logo">Triviarena <span class="game-number" id="headerGameNumber">#-</span></div>
                 <div class="header-buttons">
                     <button class="header-btn" onclick="openTutorial()">
@@ -2559,4 +2575,3 @@
     </script>
 </body>
 </html>
-
