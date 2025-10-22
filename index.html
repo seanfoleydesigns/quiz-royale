@@ -1947,10 +1947,11 @@
             gameState.previousRemaining = null;
             gameState.status = 'starting';
             
+            // Hide player count header during countdown
             const gameInfoHeader = document.getElementById('gameInfoHeader');
             const countDisplay = document.getElementById('playerCountDisplay');
-            if (gameInfoHeader) gameInfoHeader.style.display = 'flex';
-            if (countDisplay) countDisplay.style.display = 'inline';
+            if (gameInfoHeader) gameInfoHeader.style.display = 'none';
+            if (countDisplay) countDisplay.style.display = 'none';
             
             let html = '';
             
@@ -1983,10 +1984,11 @@
                 gameState.partyMembers = data.partyMembers;
             }
             
+            // Hide player count header during questions
             const gameInfoHeader = document.getElementById('gameInfoHeader');
             const countDisplay = document.getElementById('playerCountDisplay');
-            if (gameInfoHeader) gameInfoHeader.style.display = 'flex';
-            if (countDisplay) countDisplay.style.display = 'inline';
+            if (gameInfoHeader) gameInfoHeader.style.display = 'none';
+            if (countDisplay) countDisplay.style.display = 'none';
             
             let difficultyClass = 'difficulty-easy';
             if (data.difficulty === 'MEDIUM') difficultyClass = 'difficulty-medium';
@@ -2182,6 +2184,12 @@
             if (gameBubbles && gameState.partyMembers.length > 0) {
                 renderPartyBubbles(gameBubbles);
             }
+            
+            // Show player count in header briefly for results screen
+            const gameInfoHeader = document.getElementById('gameInfoHeader');
+            const countDisplay = document.getElementById('playerCountDisplay');
+            if (gameInfoHeader) gameInfoHeader.style.display = 'flex';
+            if (countDisplay) countDisplay.style.display = 'inline';
             
             setTimeout(() => {
                 let statusText = gameState.isSpectating ? 'SPECTATING' : 'CORRECT';
