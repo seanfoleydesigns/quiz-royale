@@ -1944,14 +1944,36 @@
             if (gameInfoHeader) gameInfoHeader.style.display = 'flex';
             if (countDisplay) countDisplay.style.display = 'inline';
             
-            document.getElementById('gameArea').innerHTML = 
-                `<div class="countdown">${count}</div>`;
+            let html = '';
+            
+            // Show party bubbles during countdown if in party
+            if (gameState.partyCode && gameState.partyMembers.length > 0) {
+                html += `
+                    <div class="party-bubbles game-party-bubbles" style="margin-bottom: 20px;">
+                    </div>
+                `;
+            }
+            
+            html += `<div class="countdown">${count}</div>`;
+            
+            document.getElementById('gameArea').innerHTML = html;
+            
+            // Render party bubbles
+            const gameBubbles = document.querySelector('.game-party-bubbles');
+            if (gameBubbles) {
+                renderPartyBubbles(gameBubbles);
+            }
         });
         
         socket.on('question', (data) => {
             gameState.status = 'playing';
             
             gameState.currentAnswer = null;
+            
+            // Update party members if included
+            if (data.partyMembers) {
+                gameState.partyMembers = data.partyMembers;
+            }
             
             const gameInfoHeader = document.getElementById('gameInfoHeader');
             const countDisplay = document.getElementById('playerCountDisplay');
@@ -2157,7 +2179,17 @@
                 let statusText = gameState.isSpectating ? 'SPECTATING' : 'CORRECT';
                 const startRemaining = gameState.previousRemaining || (data.remaining + data.eliminated);
                 
-                document.getElementById('gameArea').innerHTML = `
+                let html = '';
+                
+                // Show party bubbles during results if in party
+                if (gameState.partyCode && gameState.partyMembers.length > 0) {
+                    html += `
+                        <div class="party-bubbles game-party-bubbles" style="margin-bottom: 20px;">
+                        </div>
+                    `;
+                }
+                
+                html += `
                     <div class="results">
                         <div class="results-title ${gameState.isSpectating ? '' : 'correct'}">
                             ${statusText}
@@ -2170,6 +2202,14 @@
                         <div class="countdown-text" id="nextQuestionCountdown"></div>
                     </div>
                 `;
+                
+                document.getElementById('gameArea').innerHTML = html;
+                
+                // Render party bubbles
+                const gameBubbles = document.querySelector('.game-party-bubbles');
+                if (gameBubbles) {
+                    renderPartyBubbles(gameBubbles);
+                }
                 
                 if (data.eliminated > 0) {
                     const remainingElement = document.getElementById('remainingCount');
@@ -2241,7 +2281,17 @@
                     Math.round((playersBeaten / (data.totalPlayers - 1)) * 100) : 
                     100;
                 
-                document.getElementById('gameArea').innerHTML = `
+                let html = '';
+                
+                // Show party bubbles for eliminated player
+                if (gameState.partyCode && gameState.partyMembers.length > 0) {
+                    html += `
+                        <div class="party-bubbles game-party-bubbles" style="margin-bottom: 20px;">
+                        </div>
+                    `;
+                }
+                
+                html += `
                     <div class="results">
                         <div class="results-title eliminated">ELIMINATED</div>
                         <div class="stat-block">
@@ -2253,6 +2303,14 @@
                         <div class="countdown-text">Continuing as spectator...</div>
                     </div>
                 `;
+                
+                document.getElementById('gameArea').innerHTML = html;
+                
+                // Render party bubbles
+                const gameBubbles = document.querySelector('.game-party-bubbles');
+                if (gameBubbles) {
+                    renderPartyBubbles(gameBubbles);
+                }
             }, 8000);
         });
         
