@@ -641,6 +641,15 @@ async function startGame() {
             player.participatedInGame = true;
             player.hasPlayedToday = true;
             gameState.totalParticipants++;
+            
+            // Update party status to alive if in party
+            if (player.partyCode && parties.has(player.partyCode)) {
+                const party = parties.get(player.partyCode);
+                const member = party.members.find(m => m.socketId === player.id);
+                if (member) {
+                    member.status = 'alive';
+                }
+            }
         }
     });
     
@@ -678,6 +687,18 @@ function nextQuestion() {
     // Send question to all players (active and spectating)
     gameState.players.forEach((player, socketId) => {
         if (!player.leftGame) {
+            // Include party data if player is in a party
+            let partyMembers = null;
+            if (player.partyCode && parties.has(player.partyCode)) {
+                const party = parties.get(player.partyCode);
+                partyMembers = party.members.map(m => ({
+                    displayName: m.displayName,
+                    status: m.status,
+                    eliminatedOnQuestion: m.eliminatedOnQuestion,
+                    isYou: m.socketId === socketId
+                }));
+            }
+            
             io.to(socketId).emit('question', {
                 number: gameState.currentQuestion + 1,
                 total: gameState.questions.length,
@@ -685,7 +706,8 @@ function nextQuestion() {
                 answers: question.answers,
                 difficulty: question.difficulty,
                 category: question.category,
-                timeLimit: 15
+                timeLimit: 15,
+                partyMembers: partyMembers
             });
         }
     });
