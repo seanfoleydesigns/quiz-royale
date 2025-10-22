@@ -1538,7 +1538,7 @@
                     <div class="party-code-label">Party Code</div>
                     <div class="party-code-value">${gameState.partyCode}</div>
                 </div>
-                <button class="modal-button" style="margin-top: 16px;" onclick="copyPartyCode('${gameState.partyCode}')">
+                <button class="modal-button" style="margin-top: 16px;" onclick="copyPartyCode(event, '${gameState.partyCode}')">
                     <i class="fas fa-copy"></i> Copy Code
                 </button>
                 ${membersHTML}
@@ -1649,7 +1649,7 @@
                     <div class="party-code-label">Party Code</div>
                     <div class="party-code-value">${code}</div>
                 </div>
-                <button class="modal-button" style="margin-top: 16px;" onclick="copyPartyCode('${code}')">
+                <button class="modal-button" style="margin-top: 16px;" onclick="copyPartyCode(event, '${code}')">
                     <i class="fas fa-copy"></i> Copy Code
                 </button>
                 <button class="modal-button" style="background: white; color: #6366F1; border: 2px solid #6366F1; margin-top: 8px;" onclick="closeModal('partyModal')">
@@ -1672,7 +1672,7 @@
             updateLobbyPartyDisplay();
         }
         
-        function copyPartyCode(code) {
+        function copyPartyCode(event, code) {
             navigator.clipboard.writeText(code).then(() => {
                 const btn = event.target.closest('button');
                 const originalHTML = btn.innerHTML;
