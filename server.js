@@ -16,7 +16,7 @@ app.get('/', (req, res) => {
 });
 
 // Test mode toggle (set to false for production)
-const TEST_MODE = false; // Keep false for production
+const TEST_MODE = true; // Keep false for production
 
 // Force start endpoint for testing (remove for production)
 if (TEST_MODE) {
@@ -62,6 +62,29 @@ let gameState = {
     totalParticipants: 0,
     waitingCount: 0
 };
+
+// Party system
+let parties = new Map(); // partyCode -> { code, members: [{ socketId, displayName, status }], createdAt }
+
+// Generate random party code
+function generatePartyCode() {
+    const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'; // Removed ambiguous chars
+    let code;
+    do {
+        code = '';
+        for (let i = 0; i < 6; i++) {
+            code += chars.charAt(Math.floor(Math.random() * chars.length));
+        }
+    } while (parties.has(code));
+    return code;
+}
+
+// Simple profanity filter (expand this list as needed)
+function containsProfanity(text) {
+    const badWords = ['fuck', 'shit', 'ass', 'bitch', 'damn', 'crap', 'hell', 'dick', 'cock', 'pussy', 'nigger', 'nigga', 'fag', 'faggot', 'retard'];
+    const lowerText = text.toLowerCase();
+    return badWords.some(word => lowerText.includes(word));
+}
 
 // Load or create today's player data
 function loadTodayPlayers() {
@@ -335,7 +358,9 @@ io.on('connection', (socket) => {
         currentAnswer: null,
         correctAnswers: 0,
         hasPlayedToday: false,
-        todayResult: null
+        todayResult: null,
+        partyCode: null,
+        partyDisplayName: null
     });
     
     // Handle persistent ID identification
@@ -418,6 +443,24 @@ io.on('connection', (socket) => {
     // Handle disconnect
     socket.on('disconnect', () => {
         const player = gameState.players.get(socket.id);
+        
+        // Remove from party if in one
+        if (player && player.partyCode && parties.has(player.partyCode)) {
+            const party = parties.get(player.partyCode);
+            party.members = party.members.filter(m => m.socketId !== socket.id);
+            
+            // Delete party if empty
+            if (party.members.length === 0) {
+                parties.delete(player.partyCode);
+                console.log(`Party ${player.partyCode} disbanded (empty)`);
+            } else {
+                // Notify remaining members
+                party.members.forEach(member => {
+                    io.to(member.socketId).emit('partyUpdate', { members: party.members });
+                });
+            }
+        }
+        
         if (player && !player.hasPlayedToday && gameState.status === 'waiting') {
             gameState.waitingCount = Math.max(0, gameState.waitingCount - 1);
             io.emit('waitingCount', gameState.waitingCount);
@@ -458,6 +501,120 @@ io.on('connection', (socket) => {
         if (player && player.alive && gameState.status === 'playing' && !player.leftGame) {
             player.currentAnswer = answerIndex;
         }
+    });
+    
+    // Party system handlers
+    socket.on('createParty', (displayName, callback) => {
+        const player = gameState.players.get(socket.id);
+        if (!player) {
+            callback({ success: false, error: 'Player not found' });
+            return;
+        }
+        
+        // Validate display name
+        if (!displayName || displayName.trim().length === 0) {
+            callback({ success: false, error: 'Display name required' });
+            return;
+        }
+        
+        if (displayName.length > 20) {
+            callback({ success: false, error: 'Display name too long (max 20 chars)' });
+            return;
+        }
+        
+        if (containsProfanity(displayName)) {
+            callback({ success: false, error: 'Display name contains inappropriate language' });
+            return;
+        }
+        
+        // Generate party code
+        const code = generatePartyCode();
+        
+        // Create party
+        parties.set(code, {
+            code: code,
+            members: [{
+                socketId: socket.id,
+                displayName: displayName.trim(),
+                status: 'waiting', // waiting, alive, eliminated
+                eliminatedOnQuestion: null
+            }],
+            createdAt: Date.now()
+        });
+        
+        // Update player
+        player.partyCode = code;
+        player.partyDisplayName = displayName.trim();
+        
+        console.log(`Party created: ${code} by ${displayName}`);
+        callback({ success: true, code: code, members: parties.get(code).members });
+    });
+    
+    socket.on('joinParty', (data, callback) => {
+        const { code, displayName } = data;
+        const player = gameState.players.get(socket.id);
+        
+        if (!player) {
+            callback({ success: false, error: 'Player not found' });
+            return;
+        }
+        
+        // Validate display name
+        if (!displayName || displayName.trim().length === 0) {
+            callback({ success: false, error: 'Display name required' });
+            return;
+        }
+        
+        if (displayName.length > 20) {
+            callback({ success: false, error: 'Display name too long (max 20 chars)' });
+            return;
+        }
+        
+        if (containsProfanity(displayName)) {
+            callback({ success: false, error: 'Display name contains inappropriate language' });
+            return;
+        }
+        
+        // Validate code
+        if (!code || !parties.has(code.toUpperCase())) {
+            callback({ success: false, error: 'Invalid party code' });
+            return;
+        }
+        
+        const party = parties.get(code.toUpperCase());
+        
+        // Check if party is full
+        if (party.members.length >= 5) {
+            callback({ success: false, error: 'Party is full (max 5 members)' });
+            return;
+        }
+        
+        // Check if already in party
+        if (party.members.some(m => m.socketId === socket.id)) {
+            callback({ success: false, error: 'Already in this party' });
+            return;
+        }
+        
+        // Add to party
+        party.members.push({
+            socketId: socket.id,
+            displayName: displayName.trim(),
+            status: 'waiting',
+            eliminatedOnQuestion: null
+        });
+        
+        // Update player
+        player.partyCode = code.toUpperCase();
+        player.partyDisplayName = displayName.trim();
+        
+        console.log(`${displayName} joined party ${code.toUpperCase()}`);
+        
+        // Notify all party members
+        party.members.forEach(member => {
+            io.to(member.socketId).emit('partyUpdate', { members: party.members });
+        });
+        
+        callback({ success: true, code: code.toUpperCase(), members: party.members });
     });
 });
 
@@ -610,18 +767,54 @@ function processAnswers() {
             player.todayResult = result.result;
             saveTodayPlayers();
         }
+        
+        // Update party status for eliminated player
+        if (player && player.partyCode && parties.has(player.partyCode)) {
+            const party = parties.get(player.partyCode);
+            const member = party.members.find(m => m.socketId === playerId);
+            if (member) {
+                member.status = 'eliminated';
+                member.eliminatedOnQuestion = gameState.currentQuestion + 1;
+            }
+        }
     });
     
-    // Send results to all players
+    // Update party status for survivors
+    survivors.forEach(playerId => {
+        const player = gameState.players.get(playerId);
+        if (player && player.partyCode && parties.has(player.partyCode)) {
+            const party = parties.get(player.partyCode);
+            const member = party.members.find(m => m.socketId === playerId);
+            if (member) {
+                member.status = 'alive';
+            }
+        }
+    });
+    
+    // Send results to all players (including party data if in a party)
     gameState.players.forEach((player, socketId) => {
         if (!player.leftGame) {
+            let partyMembers = null;
+            
+            // Get party data if player is in a party
+            if (player.partyCode && parties.has(player.partyCode)) {
+                const party = parties.get(player.partyCode);
+                partyMembers = party.members.map(m => ({
+                    displayName: m.displayName,
+                    status: m.status,
+                    eliminatedOnQuestion: m.eliminatedOnQuestion,
+                    isYou: m.socketId === socketId
+                }));
+            }
+            
             io.to(socketId).emit('results', {
                 correct: question.correct,
                 correctIndex: correctIndex,
                 eliminated: eliminated.length,
                 remaining: alivePlayers.length,
                 totalPlayers: gameState.totalParticipants,
-                answerPercentages: answerPercentages
+                answerPercentages: answerPercentages,
+                partyMembers: partyMembers
             });
         }
     });
@@ -728,11 +921,17 @@ function resetGame() {
     gameState.currentQuestion = 0;
     gameState.totalParticipants = 0;
     
+    // Clear all parties (one game only)
+    parties.clear();
+    console.log('All parties disbanded after game');
+    
     gameState.players.forEach(player => {
         player.ready = false;
         player.alive = true;
         player.correctAnswers = 0;
         player.participatedInGame = false;
+        player.partyCode = null;
+        player.partyDisplayName = null;
         // Don't reset hasPlayedToday or todayResult - they persist
     });
     
@@ -772,6 +971,3 @@ http.listen(PORT, async () => {
     // Setup robust daily scheduling with node-cron
     setupDailySchedule();
 });
-
-
-
