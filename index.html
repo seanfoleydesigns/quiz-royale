@@ -1416,6 +1416,58 @@
             partyMembers: []
         };
         
+        // LocalStorage functions for persistent result sharing
+        function saveTodayResult(result) {
+            if (!result) return;
+            // Don't persist test mode results to localStorage
+            if (gameState.testMode) {
+                console.log('Test mode active - not saving result to localStorage');
+                return;
+            }
+            const today = new Date().toDateString();
+            const data = {
+                date: today,
+                result: result
+            };
+            localStorage.setItem('triviarena_today_result', JSON.stringify(data));
+            console.log('Result saved to localStorage for sharing until midnight');
+        }
+        
+        function loadTodayResult() {
+            try {
+                const stored = localStorage.getItem('triviarena_today_result');
+                if (!stored) return null;
+                
+                const data = JSON.parse(stored);
+                const today = new Date().toDateString();
+                
+                // Check if stored result is from today
+                if (data.date === today) {
+                    return data.result;
+                } else {
+                    // Old result, clear it
+                    localStorage.removeItem('triviarena_today_result');
+                    return null;
+                }
+            } catch (e) {
+                console.error('Error loading today result:', e);
+                return null;
+            }
+        }
+        
+        function clearTodayResult() {
+            localStorage.removeItem('triviarena_today_result');
+        }
+        
+        // Load persisted result on page load
+        const persistedResult = loadTodayResult();
+        if (persistedResult) {
+            gameState.todayResult = persistedResult;
+            gameState.hasPlayedToday = true;
+            // Update share button once DOM is ready
+            setTimeout(() => updateShareButton(), 0);
+        }
+        
         let countdownInterval = null;
         
         // Stats Management
@@ -1940,7 +1992,8 @@
         function updateShareButton() {
             const shareBtn = document.getElementById('shareBtn');
             if (shareBtn) {
-                shareBtn.disabled = !gameState.hasPlayedToday;
+                // Enable share button if we have today's result (either in memory or from localStorage)
+                shareBtn.disabled = !gameState.todayResult;
             }
         }
         
@@ -1965,6 +2018,11 @@
             gameState.waitingPlayers = data.waitingPlayers;
             gameState.status = data.status;
             gameState.testMode = data.testMode || false;
+            
+            // Save result to localStorage if it exists
+            if (gameState.todayResult) {
+                saveTodayResult(gameState.todayResult);
+            }
             
             if (gameState.testMode) {
                 document.getElementById('testModeBadge').classList.add('active');
@@ -2371,6 +2429,9 @@
                 gameNumber: data.gameNumber
             };
             
+            // Save result to localStorage for persistent sharing
+            saveTodayResult(gameState.todayResult);
+            
             updateStatsAfterGame(data.position, data.totalPlayers, data.gameNumber);
             updateShareButton();
             updateLeaveButton();
@@ -2442,6 +2503,9 @@
                     questionsCorrect: gameState.questionsCorrect,
                     gameNumber: data.gameNumber
                 };
+                
+                // Save result to localStorage for persistent sharing
+                saveTodayResult(gameState.todayResult);
             }
             
             gameState.finalQuestion = data.finalQuestion || gameState.currentQuestion || 10;
