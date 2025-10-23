@@ -917,6 +917,7 @@
             z-index: 2000;
             padding: 20px;
             backdrop-filter: blur(4px);
+            overflow-y: auto;
         }
         
         .modal-overlay.active {
@@ -949,6 +950,7 @@
             max-height: 85vh;
             max-height: 85dvh;
             overflow-y: auto;
+            margin: auto;
         }
         
         @keyframes slideUp {
@@ -1108,10 +1110,14 @@
             }
             
             /* Compact modals for mobile */
+            .modal-overlay {
+                padding: 30px 10px;
+            }
+            
             .modal-content {
                 padding: 24px 20px 20px 20px;
-                max-height: 88vh;
-                max-height: 88dvh;
+                max-height: 80vh;
+                max-height: 80dvh;
             }
             
             .modal-title {
