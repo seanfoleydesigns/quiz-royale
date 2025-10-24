@@ -17,7 +17,7 @@ app.get('/', (req, res) => {
 });
 
 // Test mode toggle (set to false for production)
-const TEST_MODE = false; // Keep false for production
+const TEST_MODE = true; // Keep false for production
 
 // Force start endpoint for testing (remove for production)
 if (TEST_MODE) {
@@ -38,6 +38,26 @@ function getGameNumber() {
     launch.setHours(0, 0, 0, 0);
     const daysSince = Math.floor((today - launch) / (1000 * 60 * 60 * 24));
     return daysSince + 1; // Game #1 on launch day
+}
+
+// Check if we should reveal player count (within 15 minutes of game time)
+function shouldRevealPlayerCount() {
+    const now = new Date();
+    
+    // Get today's game time (8pm EST)
+    const gameTime = new Date(now);
+    gameTime.setHours(20, 0, 0, 0); // 8:00pm
+    
+    // If game time has passed today, it means we're waiting for tomorrow's game
+    if (now > gameTime) {
+        return false;
+    }
+    
+    // Reveal count if within 15 minutes of game time (7:45pm or later)
+    const revealTime = new Date(gameTime);
+    revealTime.setMinutes(gameTime.getMinutes() - 15); // 7:45pm
+    
+    return now >= revealTime;
 }
 
 // Store today's questions
@@ -400,7 +420,7 @@ io.on('connection', (socket) => {
                     !p.hasPlayedToday
                 ).length;
                 gameState.waitingCount = realWaiting + gameState.ghostPlayers;
-                io.emit('waitingCount', gameState.waitingCount);
+                io.emit('waitingCount', { count: gameState.waitingCount, revealCount: shouldRevealPlayerCount() });
             }
         }
     });
@@ -422,6 +442,7 @@ io.on('connection', (socket) => {
             hasPlayedToday: player ? player.hasPlayedToday : false,
             todayResult: player ? player.todayResult : null,
             waitingPlayers: waitingPlayers,
+            revealCount: shouldRevealPlayerCount(),
             testMode: TEST_MODE
         });
     });
@@ -441,7 +462,7 @@ io.on('connection', (socket) => {
             !p.hasPlayedToday
         ).length;
         const waitingCount = realWaiting + gameState.ghostPlayers;
-        io.emit('playerCount', waitingCount);
+        io.emit('playerCount', { count: waitingCount, revealCount: shouldRevealPlayerCount() });
     } else if (gameState.status === 'playing' || gameState.status === 'starting') {
         const remainingCount = Array.from(gameState.players.values()).filter(p => 
             p.alive && !p.leftGame && p.participatedInGame
@@ -475,7 +496,7 @@ io.on('connection', (socket) => {
                 !p.hasPlayedToday && p.id !== socket.id
             ).length;
             gameState.waitingCount = realWaiting + gameState.ghostPlayers;
-            io.emit('waitingCount', gameState.waitingCount);
+            io.emit('waitingCount', { count: gameState.waitingCount, revealCount: shouldRevealPlayerCount() });
         }
         gameState.players.delete(socket.id);
         
@@ -486,7 +507,7 @@ io.on('connection', (socket) => {
                 !p.hasPlayedToday
             ).length;
             const waitingCount = realWaiting + gameState.ghostPlayers;
-            io.emit('playerCount', waitingCount);
+            io.emit('playerCount', { count: waitingCount, revealCount: shouldRevealPlayerCount() });
         } else if (gameState.status === 'playing' || gameState.status === 'starting') {
             const remainingCount = Array.from(gameState.players.values()).filter(p => 
                 p.alive && !p.leftGame && p.participatedInGame
@@ -1058,8 +1079,8 @@ function resetGame() {
     ).length;
     gameState.waitingCount = realWaiting + gameState.ghostPlayers;
     
-    io.emit('waitingCount', gameState.waitingCount);
-    io.emit('playerCount', gameState.waitingCount); // Show waiting count in lobby
+    io.emit('waitingCount', { count: gameState.waitingCount, revealCount: shouldRevealPlayerCount() });
+    io.emit('playerCount', { count: gameState.waitingCount, revealCount: shouldRevealPlayerCount() });
     
     console.log(`Game has been reset. ${realWaiting} real players + ${gameState.ghostPlayers} ghosts = ${gameState.waitingCount} total waiting`);
 }
