@@ -396,7 +396,10 @@ io.on('connection', (socket) => {
             
             // Update waiting count if they haven't played
             if (!player.hasPlayedToday && gameState.status === 'waiting') {
-                gameState.waitingCount++;
+                const realWaiting = Array.from(gameState.players.values()).filter(p => 
+                    !p.hasPlayedToday
+                ).length;
+                gameState.waitingCount = realWaiting + gameState.ghostPlayers;
                 io.emit('waitingCount', gameState.waitingCount);
             }
         }
@@ -408,10 +411,11 @@ io.on('connection', (socket) => {
     // Handle game state request
     socket.on('getGameState', () => {
         const player = gameState.players.get(socket.id);
-        // Count all players who haven't played today
-        const waitingPlayers = Array.from(gameState.players.values()).filter(p => 
+        // Count all players who haven't played today + ghosts
+        const realWaiting = Array.from(gameState.players.values()).filter(p => 
             !p.hasPlayedToday
         ).length;
+        const waitingPlayers = realWaiting + gameState.ghostPlayers;
         
         socket.emit('gameStateUpdate', {
             status: gameState.status,
@@ -432,10 +436,11 @@ io.on('connection', (socket) => {
     
     // Broadcast waiting count if in waiting state, otherwise broadcast remaining players
     if (gameState.status === 'waiting') {
-        // Count all players who haven't played today (even without persistentId)
-        const waitingCount = Array.from(gameState.players.values()).filter(p => 
+        // Count all players who haven't played today + ghosts
+        const realWaiting = Array.from(gameState.players.values()).filter(p => 
             !p.hasPlayedToday
         ).length;
+        const waitingCount = realWaiting + gameState.ghostPlayers;
         io.emit('playerCount', waitingCount);
     } else if (gameState.status === 'playing' || gameState.status === 'starting') {
         const remainingCount = Array.from(gameState.players.values()).filter(p => 
@@ -466,17 +471,21 @@ io.on('connection', (socket) => {
         }
         
         if (player && !player.hasPlayedToday && gameState.status === 'waiting') {
-            gameState.waitingCount = Math.max(0, gameState.waitingCount - 1);
+            const realWaiting = Array.from(gameState.players.values()).filter(p => 
+                !p.hasPlayedToday && p.id !== socket.id
+            ).length;
+            gameState.waitingCount = realWaiting + gameState.ghostPlayers;
             io.emit('waitingCount', gameState.waitingCount);
         }
         gameState.players.delete(socket.id);
         
         // Update count based on game status
         if (gameState.status === 'waiting') {
-            // Count all players who haven't played today
-            const waitingCount = Array.from(gameState.players.values()).filter(p => 
+            // Count all players who haven't played today + ghosts
+            const realWaiting = Array.from(gameState.players.values()).filter(p => 
                 !p.hasPlayedToday
             ).length;
+            const waitingCount = realWaiting + gameState.ghostPlayers;
             io.emit('playerCount', waitingCount);
         } else if (gameState.status === 'playing' || gameState.status === 'starting') {
             const remainingCount = Array.from(gameState.players.values()).filter(p => 
@@ -688,18 +697,10 @@ async function startGame() {
         }
     });
     
-    // Add ghost players (95-105) for a more competitive feel
-    const ghostCount = Math.floor(Math.random() * 11) + 95; // Random 95-105
-    gameState.ghostPlayers = ghostCount;
-    gameState.aliveGhosts = ghostCount;
-    gameState.totalParticipants += ghostCount;
+    // Ghosts were already added during resetGame, just add them to total participants
+    gameState.totalParticipants += gameState.ghostPlayers;
     
-    // Broadcast updated waiting count including ghosts
-    const totalWaiting = gameState.totalParticipants - ghostCount + ghostCount; // Real + ghosts
-    io.emit('waitingCount', totalWaiting);
-    io.emit('playerCount', totalWaiting);
-    
-    console.log(`Game starting with ${gameState.totalParticipants} total participants (${gameState.totalParticipants - ghostCount} real + ${ghostCount} ghosts)`);
+    console.log(`Game starting with ${gameState.totalParticipants} total participants (${gameState.totalParticipants - gameState.ghostPlayers} real + ${gameState.ghostPlayers} ghosts)`);
     
     // Countdown
     for (let i = 3; i > 0; i--) {
@@ -1031,8 +1032,11 @@ function resetGame() {
     gameState.status = 'waiting';
     gameState.currentQuestion = 0;
     gameState.totalParticipants = 0;
-    gameState.ghostPlayers = 0;
-    gameState.aliveGhosts = 0;
+    
+    // Add ghost players (95-105) for a competitive lobby feel
+    const ghostCount = Math.floor(Math.random() * 11) + 95; // Random 95-105
+    gameState.ghostPlayers = ghostCount;
+    gameState.aliveGhosts = ghostCount;
     
     // Clear all parties (one game only)
     parties.clear();
@@ -1048,15 +1052,16 @@ function resetGame() {
         // Don't reset hasPlayedToday or todayResult - they persist
     });
     
-    // Recalculate and broadcast waiting count (all players who haven't played today)
-    gameState.waitingCount = Array.from(gameState.players.values()).filter(p => 
+    // Recalculate and broadcast waiting count (real players who haven't played today + ghosts)
+    const realWaiting = Array.from(gameState.players.values()).filter(p => 
         !p.hasPlayedToday
     ).length;
+    gameState.waitingCount = realWaiting + gameState.ghostPlayers;
     
     io.emit('waitingCount', gameState.waitingCount);
     io.emit('playerCount', gameState.waitingCount); // Show waiting count in lobby
     
-    console.log('Game has been reset');
+    console.log(`Game has been reset. ${realWaiting} real players + ${gameState.ghostPlayers} ghosts = ${gameState.waitingCount} total waiting`);
 }
 
 // Helper sleep function
@@ -1080,6 +1085,12 @@ http.listen(PORT, async () => {
     // Load today's questions and players on startup
     await initializeDailyQuestions();
     loadTodayPlayers();
+    
+    // Initialize ghost players for the lobby
+    const ghostCount = Math.floor(Math.random() * 11) + 95; // Random 95-105
+    gameState.ghostPlayers = ghostCount;
+    gameState.aliveGhosts = ghostCount;
+    console.log(`Initialized ${ghostCount} ghost players for competitive feel`);
     
     // Setup robust daily scheduling with node-cron
     setupDailySchedule();
