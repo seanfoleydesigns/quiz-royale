@@ -873,10 +873,6 @@ function processAnswers() {
     const ghostsEliminated = Math.floor(gameState.aliveGhosts * ghostEliminationRate);
     gameState.aliveGhosts = Math.max(0, gameState.aliveGhosts - ghostsEliminated);
     
-    const alivePlayers = Array.from(gameState.players.values()).filter(p => 
-        p.alive && !p.leftGame && p.participatedInGame
-    );
-    
     console.log(`Q${questionNumber}: Eliminated ${eliminated.length} real + ${ghostsEliminated} ghosts (${(ghostEliminationRate * 100).toFixed(1)}% rate). Remaining: ${alivePlayers.length} real + ${gameState.aliveGhosts} ghosts = ${alivePlayers.length + gameState.aliveGhosts} total`);
     
     // Send results to all players (including party data if in a party)
@@ -1065,4 +1061,3 @@ http.listen(PORT, async () => {
     // Setup robust daily scheduling with node-cron
     setupDailySchedule();
 });
-
