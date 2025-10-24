@@ -694,6 +694,11 @@ async function startGame() {
     gameState.aliveGhosts = ghostCount;
     gameState.totalParticipants += ghostCount;
     
+    // Broadcast updated waiting count including ghosts
+    const totalWaiting = gameState.totalParticipants - ghostCount + ghostCount; // Real + ghosts
+    io.emit('waitingCount', totalWaiting);
+    io.emit('playerCount', totalWaiting);
+    
     console.log(`Game starting with ${gameState.totalParticipants} total participants (${gameState.totalParticipants - ghostCount} real + ${ghostCount} ghosts)`);
     
     // Countdown
@@ -803,7 +808,45 @@ function processAnswers() {
         }
     });
     
-    // Calculate percentages
+    // Ghost players vote on answers
+    const questionNumber = gameState.currentQuestion + 1;
+    let correctRate; // How many ghosts answer correctly
+    
+    if (questionNumber <= 3) {
+        // Easy questions: 90-95% get it right
+        correctRate = Math.random() * 0.05 + 0.90;
+    } else if (questionNumber <= 6) {
+        // Medium questions: 65-75% get it right
+        correctRate = Math.random() * 0.10 + 0.65;
+    } else {
+        // Hard questions: 20-40% get it right
+        correctRate = Math.random() * 0.20 + 0.20;
+    }
+    
+    const ghostsAnsweringCorrect = Math.floor(gameState.aliveGhosts * correctRate);
+    const ghostsAnsweringWrong = gameState.aliveGhosts - ghostsAnsweringCorrect;
+    
+    // Add ghost votes to answer counts
+    answerCounts[correctIndex] += ghostsAnsweringCorrect;
+    totalAnswers += ghostsAnsweringCorrect;
+    
+    // Distribute wrong ghost answers across the 3 wrong answers
+    if (ghostsAnsweringWrong > 0) {
+        const wrongAnswers = [0, 1, 2, 3].filter(i => i !== correctIndex);
+        for (let i = 0; i < ghostsAnsweringWrong; i++) {
+            const randomWrongAnswer = wrongAnswers[Math.floor(Math.random() * wrongAnswers.length)];
+            answerCounts[randomWrongAnswer]++;
+            totalAnswers++;
+        }
+    }
+    
+    // Eliminate ghosts who answered wrong
+    gameState.aliveGhosts = ghostsAnsweringCorrect;
+    const ghostsEliminated = ghostsAnsweringWrong;
+    
+    console.log(`Q${questionNumber}: ${ghostsAnsweringCorrect} ghosts correct (${(correctRate * 100).toFixed(1)}%), ${ghostsEliminated} eliminated. Real: ${survivors.length} correct, ${eliminated.length} eliminated.`);
+    
+    // Calculate percentages (now includes ghost votes)
     const answerPercentages = answerCounts.map(count => 
         totalAnswers > 0 ? Math.round((count / totalAnswers) * 100) : 0
     );
@@ -854,26 +897,6 @@ function processAnswers() {
             }
         }
     });
-    
-    // Eliminate ghost players based on difficulty with variance
-    const questionNumber = gameState.currentQuestion + 1;
-    let ghostEliminationRate;
-    
-    if (questionNumber <= 3) {
-        // Easy questions: 5-10% elimination
-        ghostEliminationRate = (Math.random() * 0.05 + 0.05);
-    } else if (questionNumber <= 6) {
-        // Medium questions: 25-35% elimination
-        ghostEliminationRate = (Math.random() * 0.10 + 0.25);
-    } else {
-        // Hard questions: 60-80% elimination (ghosts drop off fast)
-        ghostEliminationRate = (Math.random() * 0.20 + 0.60);
-    }
-    
-    const ghostsEliminated = Math.floor(gameState.aliveGhosts * ghostEliminationRate);
-    gameState.aliveGhosts = Math.max(0, gameState.aliveGhosts - ghostsEliminated);
-    
-    console.log(`Q${questionNumber}: Eliminated ${eliminated.length} real + ${ghostsEliminated} ghosts (${(ghostEliminationRate * 100).toFixed(1)}% rate). Remaining: ${alivePlayers.length} real + ${gameState.aliveGhosts} ghosts = ${alivePlayers.length + gameState.aliveGhosts} total`);
     
     // Send results to all players (including party data if in a party)
     gameState.players.forEach((player, socketId) => {
