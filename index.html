@@ -1943,22 +1943,13 @@
                     </div>
                 `;
             } else {
-                const revealCount = gameState.revealCount !== undefined ? gameState.revealCount : true;
-                let waitingText;
-                
-                if (revealCount) {
-                    const playerText = gameState.waitingPlayers === 1 ? 'player waiting' : 'players waiting';
-                    waitingText = `${gameState.waitingPlayers} ${playerText}`;
-                } else {
-                    waitingText = 'Player count reveals at 7:45pm EST';
-                }
-                
+                const playerText = gameState.waitingPlayers === 1 ? 'player waiting' : 'players waiting';
                 html = `
                     <div class="countdown-display">
                         <div class="countdown-label">Next game in</div>
                         <div class="countdown-timer" id="countdownTimer">--:--:--</div>
                         <div class="countdown-subtitle">8pm EST daily</div>
-                        <div class="waiting-count">${waitingText}</div>
+                        <div class="waiting-count">${gameState.waitingPlayers} ${playerText}</div>
                     </div>
                     
                     <div class="party-section">
@@ -2025,7 +2016,6 @@
             gameState.hasPlayedToday = data.hasPlayedToday;
             gameState.todayResult = data.todayResult;
             gameState.waitingPlayers = data.waitingPlayers;
-            gameState.revealCount = data.revealCount !== undefined ? data.revealCount : true;
             gameState.status = data.status;
             gameState.testMode = data.testMode || false;
             
@@ -2055,17 +2045,8 @@
             document.getElementById('headerGameNumber').textContent = `#${number}`;
         });
         
-        socket.on('playerCount', (data) => {
-            // Handle both old format (number) and new format (object)
-            const count = typeof data === 'object' ? data.count : data;
-            const revealCount = typeof data === 'object' ? data.revealCount : true;
-            
-            if (revealCount) {
-                document.getElementById('playerCount').textContent = count;
-            } else {
-                document.getElementById('playerCount').textContent = 'Player count reveals at 7:45pm EST';
-            }
-            
+        socket.on('playerCount', (count) => {
+            document.getElementById('playerCount').textContent = count;
             // Never show player count header during game
             const gameInfoHeader = document.getElementById('gameInfoHeader');
             const countDisplay = document.getElementById('playerCountDisplay');
@@ -2082,20 +2063,12 @@
             if (countDisplay) countDisplay.style.display = 'none';
         });
         
-        socket.on('waitingCount', (data) => {
-            // Handle both old format (number) and new format (object)
-            const count = typeof data === 'object' ? data.count : data;
-            const revealCount = typeof data === 'object' ? data.revealCount : true;
-            
+        socket.on('waitingCount', (count) => {
             gameState.waitingPlayers = count;
             const waitingEl = document.querySelector('.waiting-count');
             if (waitingEl) {
-                if (revealCount) {
-                    const playerText = count === 1 ? 'player waiting' : 'players waiting';
-                    waitingEl.textContent = `${count} ${playerText}`;
-                } else {
-                    waitingEl.textContent = 'Player count reveals at 7:45pm EST';
-                }
+                const playerText = count === 1 ? 'player waiting' : 'players waiting';
+                waitingEl.textContent = `${count} ${playerText}`;
             }
         });
         
