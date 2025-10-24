@@ -61,7 +61,9 @@ let gameState = {
     questionStartTime: null,
     timeLeft: 15,
     totalParticipants: 0,
-    waitingCount: 0
+    waitingCount: 0,
+    ghostPlayers: 0, // Number of ghost players (bots)
+    aliveGhosts: 0 // Number of ghost players still alive
 };
 
 // Party system
@@ -439,7 +441,7 @@ io.on('connection', (socket) => {
         const remainingCount = Array.from(gameState.players.values()).filter(p => 
             p.alive && !p.leftGame && p.participatedInGame
         ).length;
-        io.emit('playersRemaining', remainingCount);
+        io.emit('playersRemaining', remainingCount + gameState.aliveGhosts);
     }
     
     // Handle disconnect
@@ -480,7 +482,7 @@ io.on('connection', (socket) => {
             const remainingCount = Array.from(gameState.players.values()).filter(p => 
                 p.alive && !p.leftGame && p.participatedInGame
             ).length;
-            io.emit('playersRemaining', remainingCount);
+            io.emit('playersRemaining', remainingCount + gameState.aliveGhosts);
         }
         
         console.log('Player disconnected:', socket.id);
@@ -686,7 +688,13 @@ async function startGame() {
         }
     });
     
-    console.log(`Game starting with ${gameState.totalParticipants} total participants`);
+    // Add ghost players (95-105) for a more competitive feel
+    const ghostCount = Math.floor(Math.random() * 11) + 95; // Random 95-105
+    gameState.ghostPlayers = ghostCount;
+    gameState.aliveGhosts = ghostCount;
+    gameState.totalParticipants += ghostCount;
+    
+    console.log(`Game starting with ${gameState.totalParticipants} total participants (${gameState.totalParticipants - ghostCount} real + ${ghostCount} ghosts)`);
     
     // Countdown
     for (let i = 3; i > 0; i--) {
@@ -696,11 +704,12 @@ async function startGame() {
     
     gameState.status = 'playing';
     
-    // Broadcast initial remaining count
-    const remainingCount = Array.from(gameState.players.values()).filter(p => 
+    // Broadcast initial remaining count (real players + ghosts)
+    const realPlayersAlive = Array.from(gameState.players.values()).filter(p => 
         p.alive && !p.leftGame && p.participatedInGame
     ).length;
-    io.emit('playersRemaining', remainingCount);
+    const totalRemaining = realPlayersAlive + gameState.aliveGhosts;
+    io.emit('playersRemaining', totalRemaining);
     
     nextQuestion();
 }
@@ -846,6 +855,30 @@ function processAnswers() {
         }
     });
     
+    // Eliminate ghost players based on difficulty with variance
+    const questionNumber = gameState.currentQuestion + 1;
+    let ghostEliminationRate;
+    
+    if (questionNumber <= 3) {
+        // Easy questions: 5-10% elimination
+        ghostEliminationRate = (Math.random() * 0.05 + 0.05);
+    } else if (questionNumber <= 6) {
+        // Medium questions: 25-35% elimination
+        ghostEliminationRate = (Math.random() * 0.10 + 0.25);
+    } else {
+        // Hard questions: 60-80% elimination (ghosts drop off fast)
+        ghostEliminationRate = (Math.random() * 0.20 + 0.60);
+    }
+    
+    const ghostsEliminated = Math.floor(gameState.aliveGhosts * ghostEliminationRate);
+    gameState.aliveGhosts = Math.max(0, gameState.aliveGhosts - ghostsEliminated);
+    
+    const alivePlayers = Array.from(gameState.players.values()).filter(p => 
+        p.alive && !p.leftGame && p.participatedInGame
+    );
+    
+    console.log(`Q${questionNumber}: Eliminated ${eliminated.length} real + ${ghostsEliminated} ghosts (${(ghostEliminationRate * 100).toFixed(1)}% rate). Remaining: ${alivePlayers.length} real + ${gameState.aliveGhosts} ghosts = ${alivePlayers.length + gameState.aliveGhosts} total`);
+    
     // Send results to all players (including party data if in a party)
     gameState.players.forEach((player, socketId) => {
         if (!player.leftGame) {
@@ -865,8 +898,8 @@ function processAnswers() {
             io.to(socketId).emit('results', {
                 correct: question.correct,
                 correctIndex: correctIndex,
-                eliminated: eliminated.length,
-                remaining: alivePlayers.length,
+                eliminated: eliminated.length + ghostsEliminated,
+                remaining: alivePlayers.length + gameState.aliveGhosts,
                 totalPlayers: gameState.totalParticipants,
                 answerPercentages: answerPercentages,
                 partyMembers: partyMembers
@@ -874,15 +907,15 @@ function processAnswers() {
         }
     });
     
-    // Update remaining player count
-    io.emit('playersRemaining', alivePlayers.length);
+    // Update remaining player count (including ghosts)
+    io.emit('playersRemaining', alivePlayers.length + gameState.aliveGhosts);
     
-    // Tell eliminated players
+    // Tell eliminated players (their position includes ghosts)
     eliminated.forEach(playerId => {
         const player = gameState.players.get(playerId);
         if (player && !player.leftGame) {
             io.to(playerId).emit('eliminated', {
-                position: alivePlayers.length + eliminated.length, // Tied for worst position in eliminated group
+                position: alivePlayers.length + gameState.aliveGhosts + eliminated.length + ghostsEliminated, // Tied for worst position in eliminated group
                 totalPlayers: gameState.totalParticipants,
                 questionsCorrect: player.correctAnswers,
                 gameNumber: getGameNumber()
@@ -891,8 +924,9 @@ function processAnswers() {
     });
     
     // Check if game should end
-    if (gameState.currentQuestion >= 9 || alivePlayers.length <= 1) {
-        console.log(`Game ending - Question: ${gameState.currentQuestion + 1}/10, Players remaining: ${alivePlayers.length}`);
+    const totalRemaining = alivePlayers.length + gameState.aliveGhosts;
+    if (gameState.currentQuestion >= 9 || totalRemaining <= 1) {
+        console.log(`Game ending - Question: ${gameState.currentQuestion + 1}/10, Total remaining: ${totalRemaining} (${alivePlayers.length} real + ${gameState.aliveGhosts} ghosts)`);
         setTimeout(() => endGame(), 11000); // 11 seconds between questions (4s answer reveal + 4s results + 3s countdown)
     } else {
         gameState.currentQuestion++;
@@ -929,7 +963,10 @@ function endGame() {
             return { id: p.id, name: p.name, correct: p.correctAnswers };
         });
     
-    console.log('Winners found:', winners.length);
+    // Add ghost winners
+    const totalWinners = winners.length + gameState.aliveGhosts;
+    
+    console.log(`Winners: ${winners.length} real players + ${gameState.aliveGhosts} ghosts = ${totalWinners} total`);
     
     const participatingPlayers = Array.from(gameState.players.values())
         .filter(p => p.participatedInGame);
@@ -975,6 +1012,8 @@ function resetGame() {
     gameState.status = 'waiting';
     gameState.currentQuestion = 0;
     gameState.totalParticipants = 0;
+    gameState.ghostPlayers = 0;
+    gameState.aliveGhosts = 0;
     
     // Clear all parties (one game only)
     parties.clear();
@@ -1026,15 +1065,3 @@ http.listen(PORT, async () => {
     // Setup robust daily scheduling with node-cron
     setupDailySchedule();
 });
-
-
-
-
-
-
-
-
-
-
-
-
