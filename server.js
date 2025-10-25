@@ -17,7 +17,7 @@ app.get('/', (req, res) => {
 });
 
 // Test mode toggle (set to false for production)
-const TEST_MODE = false; // Keep false for production
+const TEST_MODE = true; // Keep false for production
 
 // Force start endpoint for testing (remove for production)
 if (TEST_MODE) {
@@ -42,22 +42,28 @@ function getGameNumber() {
 
 // Check if we should reveal player count (within 15 minutes of game time)
 function shouldRevealPlayerCount() {
+    // Get current time in EST
     const now = new Date();
+    const estTime = new Date(now.toLocaleString('en-US', { timeZone: 'America/New_York' }));
     
     // Get today's game time (8pm EST)
-    const gameTime = new Date(now);
-    gameTime.setHours(20, 0, 0, 0); // 8:00pm
+    const gameTime = new Date(estTime);
+    gameTime.setHours(20, 0, 0, 0); // 8:00pm EST
     
     // If game time has passed today, it means we're waiting for tomorrow's game
-    if (now > gameTime) {
+    if (estTime > gameTime) {
+        console.log(`Player count reveal: NO (game already passed - EST: ${estTime.toLocaleTimeString()})`);
         return false;
     }
     
     // Reveal count if within 15 minutes of game time (7:45pm or later)
     const revealTime = new Date(gameTime);
-    revealTime.setMinutes(gameTime.getMinutes() - 15); // 7:45pm
+    revealTime.setMinutes(gameTime.getMinutes() - 15); // 7:45pm EST
     
-    return now >= revealTime;
+    const shouldReveal = estTime >= revealTime;
+    console.log(`Player count reveal: ${shouldReveal ? 'YES' : 'NO'} (EST: ${estTime.toLocaleTimeString()}, Reveal at: ${revealTime.toLocaleTimeString()})`);
+    
+    return shouldReveal;
 }
 
 // Store today's questions
@@ -1116,6 +1122,3 @@ http.listen(PORT, async () => {
     // Setup robust daily scheduling with node-cron
     setupDailySchedule();
 });
-
-
-
