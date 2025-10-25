@@ -1944,11 +1944,15 @@
                 `;
             } else {
                 const revealCount = gameState.revealCount !== undefined ? gameState.revealCount : true;
+                // Ensure waitingPlayers is a number, not an object
+                const waitingCount = typeof gameState.waitingPlayers === 'object' 
+                    ? (gameState.waitingPlayers.count || 0) 
+                    : (gameState.waitingPlayers || 0);
                 let waitingText;
                 
                 if (revealCount) {
-                    const playerText = gameState.waitingPlayers === 1 ? 'player waiting' : 'players waiting';
-                    waitingText = `${gameState.waitingPlayers} ${playerText}`;
+                    const playerText = waitingCount === 1 ? 'player waiting' : 'players waiting';
+                    waitingText = `${waitingCount} ${playerText}`;
                 } else {
                     waitingText = 'Player count reveals at 7:45pm EST';
                 }
