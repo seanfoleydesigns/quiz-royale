@@ -1610,7 +1610,7 @@
                 </div>
                 <div style="display: flex; gap: 8px; margin-top: 16px;">
                     <button class="modal-button" style="flex: 1;" onclick="copyPartyLink(event, '${gameState.partyCode}')">
-                        <i class="fas fa-link"></i> Copy Link
+                        <i class="fas fa-link"></i> Copy Invite Link
                     </button>
                     <button class="modal-button" style="flex: 1; background: white; color: #6366F1; border: 2px solid #6366F1;" onclick="copyPartyCode(event, '${gameState.partyCode}')">
                         <i class="fas fa-copy"></i> Copy Code
@@ -1800,33 +1800,42 @@
         }
         
         function handlePartyInvite(code) {
+            console.log(`[CLIENT] Handling party invite for code: ${code}`);
+            
             // Clean URL (remove ?party= param)
             const cleanUrl = window.location.origin + window.location.pathname;
             window.history.replaceState({}, document.title, cleanUrl);
             
-            // Validate the party code with server
-            socket.emit('validatePartyInvite', code.toUpperCase(), (response) => {
-                if (!response.valid) {
-                    // Show error
-                    showPartyInviteError(response.reason);
-                    return;
-                }
+            // Add small delay to ensure connection is fully stabilized
+            setTimeout(() => {
+                console.log(`[CLIENT] Validating party invite: ${code.toUpperCase()}`);
                 
-                // Check if already in this party
-                if (response.alreadyInParty) {
-                    showPartyInviteSuccess('You\'re already in this party!');
-                    return;
-                }
-                
-                // Check if already in a different party
-                if (response.hasOtherParty) {
-                    showPartySwitchConfirmation(response.targetParty);
-                    return;
-                }
-                
-                // All good - show name entry to join
-                showPartyInviteNameEntry(response.code);
-            });
+                // Validate the party code with server
+                socket.emit('validatePartyInvite', code.toUpperCase(), (response) => {
+                    console.log(`[CLIENT] Validation response:`, response);
+                    
+                    if (!response.valid) {
+                        // Show error
+                        showPartyInviteError(response.reason);
+                        return;
+                    }
+                    
+                    // Check if already in this party
+                    if (response.alreadyInParty) {
+                        showPartyInviteSuccess('You\'re already in this party!');
+                        return;
+                    }
+                    
+                    // Check if already in a different party
+                    if (response.hasOtherParty) {
+                        showPartySwitchConfirmation(response.targetParty);
+                        return;
+                    }
+                    
+                    // All good - show name entry to join
+                    showPartyInviteNameEntry(response.code);
+                });
+            }, 500); // 500ms delay to ensure full connection
         }
         
         function showPartyInviteError(reason) {
@@ -2232,12 +2241,12 @@
             socket.emit('identify', getPlayerId());
             socket.emit('getGameState');
             
-            // Check for party invite link in URL
+            // Store party code if present, but don't process yet
             const urlParams = new URLSearchParams(window.location.search);
             const partyCode = urlParams.get('party');
             if (partyCode) {
                 console.log('Party invite detected:', partyCode);
-                handlePartyInvite(partyCode);
+                gameState.pendingPartyInvite = partyCode;
             }
         });
         
@@ -2265,6 +2274,13 @@
                 if (gameInfoHeader) gameInfoHeader.style.display = 'none';
                 if (countDisplay) countDisplay.style.display = 'none';
                 showLobbyScreen();
+            }
+            
+            // Now that we're properly connected, handle pending party invite
+            if (gameState.pendingPartyInvite) {
+                const code = gameState.pendingPartyInvite;
+                gameState.pendingPartyInvite = null; // Clear it
+                handlePartyInvite(code);
             }
             
             updateShareButton();
@@ -2889,4 +2905,3 @@
     </script>
 </body>
 </html>
-
