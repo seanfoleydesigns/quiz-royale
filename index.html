@@ -1718,14 +1718,14 @@
             document.getElementById('partyModalTitle').textContent = 'Party Created!';
             document.getElementById('partyModalContent').innerHTML = `
                 <p style="text-align: center; color: #64748B; font-size: 0.875rem; margin-bottom: 16px;">
-                    Share this code with your friends!
+                    Share this link with your friends!
                 </p>
                 <div class="party-code-display">
                     <div class="party-code-label">Party Code</div>
                     <div class="party-code-value">${code}</div>
                 </div>
-                <button class="modal-button" style="margin-top: 16px;" onclick="copyPartyCode(event, '${code}')">
-                    <i class="fas fa-copy"></i> Copy Code
+                <button class="modal-button" style="margin-top: 16px;" onclick="copyPartyLink(event, '${code}')">
+                    <i class="fas fa-link"></i> Copy Invite Link
                 </button>
                 <button class="modal-button" style="background: white; color: #6366F1; border: 2px solid #6366F1; margin-top: 8px;" onclick="closeModal('partyModal')">
                     Done
@@ -1837,7 +1837,7 @@
                     <p style="color: #64748B; font-size: 0.9375rem; margin-bottom: 20px;">
                         ${reason}
                     </p>
-                    <button class="modal-button" onclick="closePartyModal()">
+                    <button class="modal-button" onclick="closeModal('partyModal')">
                         <i class="fas fa-times"></i> Close
                     </button>
                 </div>
@@ -1854,7 +1854,7 @@
                     <p style="color: #64748B; font-size: 0.9375rem; margin-bottom: 20px;">
                         ${message}
                     </p>
-                    <button class="modal-button" onclick="closePartyModal()">
+                    <button class="modal-button" onclick="closeModal('partyModal')">
                         <i class="fas fa-check"></i> Got it
                     </button>
                 </div>
@@ -1871,7 +1871,7 @@
                     Leave it to join party <strong>${targetCode}</strong>?
                 </p>
                 <div style="display: flex; gap: 10px;">
-                    <button class="modal-button" style="flex: 1; background: white; color: #6366F1; border: 2px solid #6366F1;" onclick="closePartyModal()">
+                    <button class="modal-button" style="flex: 1; background: white; color: #6366F1; border: 2px solid #6366F1;" onclick="closeModal('partyModal')">
                         <i class="fas fa-times"></i> Cancel
                     </button>
                     <button class="modal-button" style="flex: 1;" onclick="confirmPartySwitch('${targetCode}')">
@@ -1907,7 +1907,7 @@
                     onkeypress="if(event.key==='Enter') joinPartyFromInvite('${code}')">
                 <div id="partyInviteError" style="color: #DC2626; font-size: 0.875rem; text-align: center; margin-bottom: 12px; display: none;"></div>
                 <div style="display: flex; gap: 10px;">
-                    <button class="modal-button" style="flex: 1; background: white; color: #6366F1; border: 2px solid #6366F1;" onclick="closePartyModal()">
+                    <button class="modal-button" style="flex: 1; background: white; color: #6366F1; border: 2px solid #6366F1;" onclick="closeModal('partyModal')">
                         <i class="fas fa-times"></i> Cancel
                     </button>
                     <button class="modal-button" style="flex: 1;" onclick="joinPartyFromInvite('${code}')">
@@ -1938,8 +1938,7 @@
                 if (response.success) {
                     gameState.partyCode = response.code;
                     gameState.partyMembers = response.members;
-                    closePartyModal();
-                    updateLobbyPartyDisplay();
+                    showPartyJoined(); // Show success modal like normal join flow
                 } else {
                     errorEl.textContent = response.error;
                     errorEl.style.display = 'block';
