@@ -1917,6 +1917,37 @@
                     `${String(time.hours).padStart(2, '0')}:${String(time.minutes).padStart(2, '0')}:${String(time.seconds).padStart(2, '0')}`;
             }
             
+            // Check if we should reveal player count (within 15 mins of game time)
+            const now = new Date();
+            const est = new Date(now.toLocaleString("en-US", {timeZone: "America/New_York"}));
+            const gameTime = new Date(est);
+            gameTime.setHours(20, 0, 0, 0);
+            
+            // Only check if game hasn't started yet
+            if (est < gameTime) {
+                const revealTime = new Date(gameTime);
+                revealTime.setMinutes(revealTime.getMinutes() - 15); // 7:45pm EST
+                const shouldReveal = est >= revealTime;
+                
+                // Update display if reveal status changed
+                if (shouldReveal !== gameState.revealCount) {
+                    gameState.revealCount = shouldReveal;
+                    const waitingEl = document.querySelector('.waiting-count');
+                    if (waitingEl) {
+                        const waitingCount = typeof gameState.waitingPlayers === 'object' 
+                            ? (gameState.waitingPlayers.count || 0) 
+                            : (gameState.waitingPlayers || 0);
+                        
+                        if (shouldReveal) {
+                            const playerText = waitingCount === 1 ? 'player waiting' : 'players waiting';
+                            waitingEl.textContent = `${waitingCount} ${playerText}`;
+                        } else {
+                            waitingEl.textContent = 'Player count reveals at 7:45pm EST';
+                        }
+                    }
+                }
+            }
+            
             if (time.total < 1000 && !gameState.testMode) {
                 clearInterval(countdownInterval);
             }
