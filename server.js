@@ -659,40 +659,50 @@ io.on('connection', (socket) => {
     
     // Validate party invite link (check if party exists and is joinable)
     socket.on('validatePartyInvite', (code, callback) => {
+        console.log(`[${socket.id}] Validating party invite: ${code}`);
         const player = gameState.players.get(socket.id);
         
         if (!player) {
-            callback({ valid: false, reason: 'Connection error' });
+            console.log(`[${socket.id}] Validation failed: Player not found in gameState.players. Connected players: ${gameState.players.size}`);
+            callback({ valid: false, reason: 'Connection error - please try again' });
             return;
         }
         
+        console.log(`[${socket.id}] Player found: ${player.persistentId || 'no persistentId'}`);
+        
         // Check if code exists
         if (!code || !parties.has(code.toUpperCase())) {
+            console.log(`[${socket.id}] Validation failed: Party ${code} does not exist. Active parties: [${Array.from(parties.keys()).join(', ')}]`);
             callback({ valid: false, reason: 'Party does not exist or has ended' });
             return;
         }
         
         const party = parties.get(code.toUpperCase());
+        console.log(`[${socket.id}] Party ${code} found with ${party.members.length} members`);
         
         // Check if party is full
         if (party.members.length >= 5) {
+            console.log(`[${socket.id}] Validation failed: Party ${code} is full`);
             callback({ valid: false, reason: 'Party is full (5/5 players)' });
             return;
         }
         
         // Check if already in this party
         if (party.members.some(m => m.socketId === socket.id)) {
+            console.log(`[${socket.id}] Player already in party ${code}`);
             callback({ valid: true, alreadyInParty: true, code: code.toUpperCase() });
             return;
         }
         
         // Check if user is in a different party
         if (player.partyCode && player.partyCode !== code.toUpperCase()) {
+            console.log(`[${socket.id}] Player in different party ${player.partyCode}, wants to join ${code}`);
             callback({ valid: true, hasOtherParty: true, currentParty: player.partyCode, targetParty: code.toUpperCase() });
             return;
         }
         
         // All good!
+        console.log(`[${socket.id}] Party ${code} validation successful`);
         callback({ valid: true, code: code.toUpperCase() });
     });
     
@@ -1161,4 +1171,3 @@ http.listen(PORT, async () => {
     // Setup robust daily scheduling with node-cron
     setupDailySchedule();
 });
-
