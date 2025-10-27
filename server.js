@@ -17,7 +17,7 @@ app.get('/', (req, res) => {
 });
 
 // Test mode toggle (set to false for production)
-const TEST_MODE = false; // Keep false for production
+const TEST_MODE = true; // Keep false for production
 
 // Force start endpoint for testing (remove for production)
 if (TEST_MODE) {
@@ -657,6 +657,45 @@ io.on('connection', (socket) => {
         callback({ success: true, code: code.toUpperCase(), members: party.members });
     });
     
+    // Validate party invite link (check if party exists and is joinable)
+    socket.on('validatePartyInvite', (code, callback) => {
+        const player = gameState.players.get(socket.id);
+        
+        if (!player) {
+            callback({ valid: false, reason: 'Connection error' });
+            return;
+        }
+        
+        // Check if code exists
+        if (!code || !parties.has(code.toUpperCase())) {
+            callback({ valid: false, reason: 'Party does not exist or has ended' });
+            return;
+        }
+        
+        const party = parties.get(code.toUpperCase());
+        
+        // Check if party is full
+        if (party.members.length >= 5) {
+            callback({ valid: false, reason: 'Party is full (5/5 players)' });
+            return;
+        }
+        
+        // Check if already in this party
+        if (party.members.some(m => m.socketId === socket.id)) {
+            callback({ valid: true, alreadyInParty: true, code: code.toUpperCase() });
+            return;
+        }
+        
+        // Check if user is in a different party
+        if (player.partyCode && player.partyCode !== code.toUpperCase()) {
+            callback({ valid: true, hasOtherParty: true, currentParty: player.partyCode, targetParty: code.toUpperCase() });
+            return;
+        }
+        
+        // All good!
+        callback({ valid: true, code: code.toUpperCase() });
+    });
+    
     socket.on('leaveParty', () => {
         const player = gameState.players.get(socket.id);
         if (!player || !player.partyCode) {
@@ -1122,4 +1161,3 @@ http.listen(PORT, async () => {
     // Setup robust daily scheduling with node-cron
     setupDailySchedule();
 });
-
