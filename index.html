@@ -1608,9 +1608,14 @@
                     <div class="party-code-label">Party Code</div>
                     <div class="party-code-value">${gameState.partyCode}</div>
                 </div>
-                <button class="modal-button" style="margin-top: 16px;" onclick="copyPartyCode(event, '${gameState.partyCode}')">
-                    <i class="fas fa-copy"></i> Copy Code
-                </button>
+                <div style="display: flex; gap: 8px; margin-top: 16px;">
+                    <button class="modal-button" style="flex: 1;" onclick="copyPartyLink(event, '${gameState.partyCode}')">
+                        <i class="fas fa-link"></i> Copy Invite Link
+                    </button>
+                    <button class="modal-button" style="flex: 1; background: white; color: #6366F1; border: 2px solid #6366F1;" onclick="copyPartyCode(event, '${gameState.partyCode}')">
+                        <i class="fas fa-copy"></i> Copy Code
+                    </button>
+                </div>
                 ${membersHTML}
                 <button class="modal-button" style="background: #DC2626; margin-top: 20px;" onclick="leaveParty()">
                     <i class="fas fa-sign-out-alt"></i> Leave Party
@@ -1765,6 +1770,180 @@
                     btn.disabled = false;
                     btn.blur();
                 }, 2000);
+            });
+        }
+        
+        function copyPartyLink(event, code) {
+            const inviteLink = `${window.location.origin}/?party=${code}`;
+            navigator.clipboard.writeText(inviteLink).then(() => {
+                const btn = event.target.closest('button');
+                const originalHTML = btn.innerHTML;
+                btn.innerHTML = '<i class="fas fa-check"></i> Link Copied!';
+                btn.disabled = true;
+                setTimeout(() => {
+                    btn.innerHTML = originalHTML;
+                    btn.disabled = false;
+                    btn.blur();
+                }, 2000);
+            }).catch(err => {
+                console.error('Failed to copy:', err);
+                const btn = event.target.closest('button');
+                const originalHTML = btn.innerHTML;
+                btn.innerHTML = '<i class="fas fa-check"></i> Link Copied!';
+                btn.disabled = true;
+                setTimeout(() => {
+                    btn.innerHTML = originalHTML;
+                    btn.disabled = false;
+                    btn.blur();
+                }, 2000);
+            });
+        }
+        
+        function handlePartyInvite(code) {
+            // Clean URL (remove ?party= param)
+            const cleanUrl = window.location.origin + window.location.pathname;
+            window.history.replaceState({}, document.title, cleanUrl);
+            
+            // Validate the party code with server
+            socket.emit('validatePartyInvite', code.toUpperCase(), (response) => {
+                if (!response.valid) {
+                    // Show error
+                    showPartyInviteError(response.reason);
+                    return;
+                }
+                
+                // Check if already in this party
+                if (response.alreadyInParty) {
+                    showPartyInviteSuccess('You\'re already in this party!');
+                    return;
+                }
+                
+                // Check if already in a different party
+                if (response.hasOtherParty) {
+                    showPartySwitchConfirmation(response.targetParty);
+                    return;
+                }
+                
+                // All good - show name entry to join
+                showPartyInviteNameEntry(response.code);
+            });
+        }
+        
+        function showPartyInviteError(reason) {
+            document.getElementById('partyModalTitle').textContent = 'Party Invite';
+            document.getElementById('partyModalContent').innerHTML = `
+                <div style="text-align: center; padding: 20px 0;">
+                    <i class="fas fa-exclamation-circle" style="font-size: 3rem; color: #DC2626; margin-bottom: 16px;"></i>
+                    <p style="color: #64748B; font-size: 0.9375rem; margin-bottom: 20px;">
+                        ${reason}
+                    </p>
+                    <button class="modal-button" onclick="closePartyModal()">
+                        <i class="fas fa-times"></i> Close
+                    </button>
+                </div>
+            `;
+            document.getElementById('partyModal').classList.add('active');
+            document.body.classList.add('modal-open');
+        }
+        
+        function showPartyInviteSuccess(message) {
+            document.getElementById('partyModalTitle').textContent = 'Party Invite';
+            document.getElementById('partyModalContent').innerHTML = `
+                <div style="text-align: center; padding: 20px 0;">
+                    <i class="fas fa-check-circle" style="font-size: 3rem; color: #059669; margin-bottom: 16px;"></i>
+                    <p style="color: #64748B; font-size: 0.9375rem; margin-bottom: 20px;">
+                        ${message}
+                    </p>
+                    <button class="modal-button" onclick="closePartyModal()">
+                        <i class="fas fa-check"></i> Got it
+                    </button>
+                </div>
+            `;
+            document.getElementById('partyModal').classList.add('active');
+            document.body.classList.add('modal-open');
+        }
+        
+        function showPartySwitchConfirmation(targetCode) {
+            document.getElementById('partyModalTitle').textContent = 'Switch Party?';
+            document.getElementById('partyModalContent').innerHTML = `
+                <p style="text-align: center; color: #64748B; font-size: 0.875rem; margin-bottom: 20px;">
+                    You're currently in party <strong>${gameState.partyCode}</strong>.<br>
+                    Leave it to join party <strong>${targetCode}</strong>?
+                </p>
+                <div style="display: flex; gap: 10px;">
+                    <button class="modal-button" style="flex: 1; background: white; color: #6366F1; border: 2px solid #6366F1;" onclick="closePartyModal()">
+                        <i class="fas fa-times"></i> Cancel
+                    </button>
+                    <button class="modal-button" style="flex: 1;" onclick="confirmPartySwitch('${targetCode}')">
+                        <i class="fas fa-check"></i> Switch
+                    </button>
+                </div>
+            `;
+            document.getElementById('partyModal').classList.add('active');
+            document.body.classList.add('modal-open');
+        }
+        
+        function confirmPartySwitch(targetCode) {
+            // Leave current party
+            socket.emit('leaveParty');
+            gameState.partyCode = null;
+            gameState.partyMembers = [];
+            
+            // Show name entry for new party
+            showPartyInviteNameEntry(targetCode);
+        }
+        
+        function showPartyInviteNameEntry(code) {
+            document.getElementById('partyModalTitle').textContent = 'Join Party';
+            document.getElementById('partyModalContent').innerHTML = `
+                <p style="text-align: center; color: #64748B; font-size: 0.875rem; margin-bottom: 4px;">
+                    Joining party <strong>${code}</strong>
+                </p>
+                <p style="text-align: center; color: #64748B; font-size: 0.875rem; margin-bottom: 16px;">
+                    Enter your display name:
+                </p>
+                <input type="text" id="partyInviteDisplayName" placeholder="Your display name" maxlength="10" 
+                    style="width: 100%; padding: 12px; border: 2px solid #E2E8F0; border-radius: 8px; font-family: 'Poppins', sans-serif; font-size: 16px; margin-bottom: 16px;"
+                    onkeypress="if(event.key==='Enter') joinPartyFromInvite('${code}')">
+                <div id="partyInviteError" style="color: #DC2626; font-size: 0.875rem; text-align: center; margin-bottom: 12px; display: none;"></div>
+                <div style="display: flex; gap: 10px;">
+                    <button class="modal-button" style="flex: 1; background: white; color: #6366F1; border: 2px solid #6366F1;" onclick="closePartyModal()">
+                        <i class="fas fa-times"></i> Cancel
+                    </button>
+                    <button class="modal-button" style="flex: 1;" onclick="joinPartyFromInvite('${code}')">
+                        <i class="fas fa-sign-in-alt"></i> Join
+                    </button>
+                </div>
+            `;
+            document.getElementById('partyModal').classList.add('active');
+            document.body.classList.add('modal-open');
+            // Focus on input
+            setTimeout(() => {
+                document.getElementById('partyInviteDisplayName').focus();
+            }, 100);
+        }
+        
+        function joinPartyFromInvite(code) {
+            const displayName = document.getElementById('partyInviteDisplayName').value.trim();
+            const errorEl = document.getElementById('partyInviteError');
+            
+            if (!displayName) {
+                errorEl.textContent = 'Please enter a display name';
+                errorEl.style.display = 'block';
+                return;
+            }
+            
+            // Use existing joinParty logic
+            socket.emit('joinParty', { code, displayName }, (response) => {
+                if (response.success) {
+                    gameState.partyCode = response.code;
+                    gameState.partyMembers = response.members;
+                    closePartyModal();
+                    updateLobbyPartyDisplay();
+                } else {
+                    errorEl.textContent = response.error;
+                    errorEl.style.display = 'block';
+                }
             });
         }
         
@@ -2053,6 +2232,14 @@
             console.log('Connected to server');
             socket.emit('identify', getPlayerId());
             socket.emit('getGameState');
+            
+            // Check for party invite link in URL
+            const urlParams = new URLSearchParams(window.location.search);
+            const partyCode = urlParams.get('party');
+            if (partyCode) {
+                console.log('Party invite detected:', partyCode);
+                handlePartyInvite(partyCode);
+            }
         });
         
         socket.on('gameStateUpdate', (data) => {
